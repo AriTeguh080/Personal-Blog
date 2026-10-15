@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MikroTik Network Configuration Lab — Ari Teguh</title>
+  <meta name="description" content="Praktik konfigurasi dasar MikroTik: NAT, DHCP, bridge, VLAN, dan pengelolaan jaringan untuk distribusi internet.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Bali — Indonesia</span></div>
+    <nav class="navbar" aria-label="Navigasi utama">
+      <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+        <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </div>
+</header>
+<main>
+  <article class="article-wrap">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 03 — MikroTik</nav>
+    <span class="article-cat">Networking</span>
+    <h1>MikroTik Network Configuration Lab</h1>
+    <div class="article-date">4 September 2026 • Project 03 / 07</div>
+    <figure class="article-cover"><div class="img-frame"><img src="../images/projects/mikrotik.png" alt="MikroTik Network Configuration Lab"></div>
+      <figcaption class="photo-caption">Fig. 03 — Konfigurasi NAT, DHCP, dan bridge di MikroTik.</figcaption>
+    </figure>
+    <div class="article-body">
+      <h2>Pendahuluan</h2>
+      <!-- Tambahkan detail sesuai kegiatan sebenarnya -->
+      <p>Dari simulasi, saya lanjut ke perangkat yang sebenarnya — sebagai latihan hands-on. Saya melakukan praktik konfigurasi dasar MikroTik untuk memahami bagaimana sebuah router mengatur jaringan lokal dan mendistribusikan koneksi ke client.</p>
+      <h2>Tujuan</h2>
+      <ul><li>Memahami peran router sebagai penghubung sisi WAN dan LAN.</li><li>Mempelajari konfigurasi IP address, DHCP, NAT, bridge, dan VLAN dasar.</li><li>Memahami distribusi koneksi internet ke client.</li><li>Melatih pengecekan konektivitas dan troubleshooting dasar.</li></ul>
+      <h2>Tools / Perangkat</h2>
+      <ul><li>Perangkat MikroTik dengan RouterOS, dikonfigurasi lewat WinBox atau terminal</li><li>Client untuk pengujian konektivitas</li><li>Perintah ping dan pemantau interface bawaan RouterOS</li></ul>
+      <h2>Proses yang Dilakukan</h2>
+      <ol><li>Memberi alamat IP pada interface sisi WAN dan LAN.</li><li>Mengkonfigurasi DHCP server beserta DNS untuk jaringan lokal.</li><li>Mengkonfigurasi NAT agar client bisa mengakses internet.</li><li>Mengatur bridge dan VLAN dasar untuk kerapian segmen.</li><li>Menguji konektivitas dari client sampai ke internet.</li></ol>
+      <h2>Kendala / Hal yang Diperhatikan</h2>
+      <p>Di satu titik, client sudah memperoleh IP tetapi belum bisa membuka internet. Saya memeriksa ulang urutan konfigurasi — IP, DHCP, NAT — dan menemukan bagian yang belum tepat, lalu memperbaikinya.</p>
+      <h2>Hasil dan Pemahaman</h2>
+      <p>Kegiatan ini membantu memahami hubungan antara WAN, LAN, NAT, DHCP, bridge, dan VLAN dalam satu perangkat. Jaringan lab tersambung, dan setiap perubahan saya catat supaya bisa diulang atau dikembalikan.</p>
+      <div class="callout">Konfigurasi yang dicatat sama berharganya dengan konfigurasi yang berhasil — karena lab adalah tempat mengulang.</div>
+      <h2>Hal yang Dipelajari</h2>
+      <ul><li>Alur paket di router: dari interface, NAT, sampai firewall dasar.</li><li>Kebiasaan mencadangkan konfigurasi sebelum mencoba sesuatu yang baru.</li><li>Membaca status interface dan log sederhana untuk troubleshooting.</li></ul>
+      <h2>Kesimpulan</h2>
+      <p>Lab ini mengubah pemahaman saya dari sekadar tahu konsepnya menjadi pernah menyentuhnya langsung — dan itu terasa bedanya.</p>
+    </div>
+    <div class="back-link">
+      <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+      <a class="text-link" href="server-hardware-upgrade.html">Artikel berikutnya <span class="arrow">→</span></a>
+    </div>
+  </article>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+      <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+      </nav>
+      <div><span class="small-label">Kontak</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="../js/posts.js"></script>
+<script src="../js/script.js"></script>
+<script src="../js/animations.js"></script>
+</body>
+</html>

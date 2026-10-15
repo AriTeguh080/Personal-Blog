@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — Ari Teguh | Networking, Server & Security Labs</title>
+  <meta name="description" content="Kumpulan 8 project lab Ari Teguh: arsitektur jaringan, VLAN, MikroTik, server, Proxmox, threat intelligence, Webmin, dan Zero Trust VPN.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Bali — Indonesia</span></div>
+    <nav class="navbar" aria-label="Navigasi utama">
+      <a class="brand" href="index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+        <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <span class="kicker">Showcase</span>
+      <h1 class="section-title">Projects</h1>
+      <p class="lead">Delapan lab yang mendokumentasikan perjalanan saya — dari fondasi jaringan, server, sampai keamanan akses. Urutan terlama → terbaru.</p>
+      <div class="issue-bar" style="margin-top:22px"><span>01 — 08 • Editorial Showcase</span><span>Alternating Layout</span></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:12px">
+    <div class="container" id="all-projects">
+      <div class="project-row">
+        <div class="p-media"><div class="img-frame"><img src="images/projects/company-network.png" alt="Company Network Architecture Design" loading="lazy"><div class="img-fallback"><span>Editorial Plate • 01</span><strong>Company Network Architecture Design</strong></div></div></div>
+        <div class="p-content"><div class="p-num">01</div><div class="p-cat">Networking / Infrastructure</div><h3>Company Network Architecture Design</h3><div class="p-date">29 Agustus 2026</div><p>Mempelajari kondisi jaringan dan membuat rancangan topologi untuk memahami distribusi koneksi, segmentasi, dan struktur jaringan antar area.</p><div class="tags"><span class="tag">Networking</span><span class="tag">Infrastructure</span><span class="tag">Routing</span><span class="tag">VLAN</span></div><a class="text-link" href="blog/company-network-architecture.html">Baca artikel <span class="arrow">→</span></a></div>
+      </div>
+      <div class="project-row reverse">
+        <div class="p-media"><div class="img-frame"><img src="images/projects/vlan-dhcp.png" alt="VLAN & Centralized DHCP Simulation" loading="lazy"><div class="img-fallback"><span>Editorial Plate • 02</span><strong>VLAN &amp; Centralized DHCP Simulation</strong></div></div></div>
+        <div class="p-content"><div class="p-num">02</div><div class="p-cat">Networking</div><h3>VLAN &amp; Centralized DHCP Simulation</h3><div class="p-date">31 Agustus 2026</div><p>Simulasi segmentasi jaringan menggunakan VLAN dan DHCP terpusat untuk memahami pembagian jaringan dan distribusi alamat IP.</p><div class="tags"><span class="tag">Cisco</span><span class="tag">VLAN</span><span class="tag">DHCP</span><span class="tag">Routing</span></div><a class="text-link" href="blog/vlan-dhcp.html">Baca artikel <span class="arrow">→</span></a></div>
+      </div>
+      <div class="project-row">
+        <div class="p-media"><div class="img-frame"><img src="images/projects/mikrotik.png" alt="MikroTik Network Configuration Lab" loading="lazy"><div class="img-fallback"><span>Editorial Plate • 03</span><strong>MikroTik Network Configuration Lab</strong></div></div></div>
+        <div class="p-content"><div class="p-num">03</div><div class="p-cat">Networking</div><h3>MikroTik Network Configuration Lab</h3><div class="p-date">4 September 2026</div><p>Praktik konfigurasi dasar MikroTik meliputi DHCP, NAT, bridge, VLAN, dan distribusi koneksi jaringan.</p><div class="tags"><span class="tag">MikroTik</span><span class="tag">NAT</span><span class="tag">DHCP</span><span class="tag">Bridge</span><span class="tag">VLAN</span></div><a class="text-link" href="blog/mikrotik-network-configuration.html">Baca artikel <span class="arrow">→</span></a></div>
+      </div>
+      <div class="project-row reverse">
+        <div class="p-media"><div class="img-frame"><img src="images/projects/server-hardware.png" alt="Server Hardware Upgrade & Deployment" loading="lazy"><div class="img-fallback"><span>Editorial Plate • 04</span><strong>Server Hardware Upgrade &amp; Deployment</strong></div></div></div>
+        <div class="p-content"><div class="p-num">04</div><div class="p-cat">Server / Infrastructure</div><h3>Server Hardware Upgrade &amp; Deployment</h3><div class="p-date">11 September 2026</div><p>Persiapan dan peningkatan perangkat server melalui pemasangan SSD, pengecekan hardware, dan persiapan sistem sebelum virtualisasi.</p><div class="tags"><span class="tag">Server Hardware</span><span class="tag">SSD</span><span class="tag">Infrastructure</span><span class="tag">Linux</span></div><a class="text-link" href="blog/server-hardware-upgrade.html">Baca artikel <span class="arrow">→</span></a></div>
+      </div>
+      <div class="project-row">
+        <div class="p-media"><div class="img-frame"><img src="images/projects/proxmox.png" alt="Proxmox Virtualization Server" loading="lazy"><div class="img-fallback"><span>Editorial Plate • 05</span><strong>Proxmox Virtualization Server</strong></div></div></div>
+        <div class="p-content"><div class="p-num">05</div><div class="p-cat">Server / Virtualization</div><h3>Proxmox Virtualization Server</h3><div class="p-date">17 September 2026</div><p>Instalasi Proxmox VE dan praktik pembuatan virtual machine Debian untuk memahami dasar virtualisasi server.</p><div class="tags"><span class="tag">Proxmox VE</span><span class="tag">Debian</span><span class="tag">Linux</span><span class="tag">Virtualization</span></div><a class="text-link" href="blog/proxmox-virtualization.html">Baca artikel <span class="arrow">→</span></a></div>
+      </div>
+      <div class="project-row reverse">
+        <div class="p-media"><div class="img-frame"><img src="images/projects/threat-intelligence.png" alt="IOC & Threat Intelligence Analysis" loading="lazy"><div class="img-fallback"><span>Editorial Plate • 06</span><strong>IOC &amp; Threat Intelligence Analysis</strong></div></div></div>
+        <div class="p-content"><div class="p-num">06</div><div class="p-cat">Cyber Security</div><h3>IOC &amp; Threat Intelligence Analysis</h3><div class="p-date">26 September 2026</div><p>Pembelajaran analisis Indicator of Compromise dan pemanfaatan threat intelligence untuk memahami indikator aktivitas mencurigakan.</p><div class="tags"><span class="tag">IOC</span><span class="tag">Threat Intelligence</span><span class="tag">CISA</span><span class="tag">ThreatFox</span></div><a class="text-link" href="blog/ioc-threat-intelligence.html">Baca artikel <span class="arrow">→</span></a></div>
+      </div>
+      <div class="project-row">
+        <div class="p-media"><div class="img-frame"><img src="images/projects/webmin.png" alt="Webmin Server Administration Lab" loading="lazy"><div class="img-fallback"><span>Editorial Plate • 07</span><strong>Webmin Server Administration Lab</strong></div></div></div>
+        <div class="p-content"><div class="p-num">07</div><div class="p-cat">Server Administration</div><h3>Webmin Server Administration Lab</h3><div class="p-date">5 Oktober 2026</div><p>Praktik administrasi server Debian menggunakan Webmin untuk monitoring resource dan pengelolaan konfigurasi dasar sistem.</p><div class="tags"><span class="tag">Webmin</span><span class="tag">Debian</span><span class="tag">Linux</span><span class="tag">Server Administration</span></div><a class="text-link" href="blog/webmin-server-administration.html">Baca artikel <span class="arrow">→</span></a></div>
+      </div>
+      <div class="project-row reverse">
+        <div class="p-media"><div class="img-frame"><img src="images/projects/wireguard-tailscale.png" alt="WireGuard, Tailscale & Zero Trust Networking" loading="lazy"><div class="img-fallback"><span>Editorial Plate • 08</span><strong>WireGuard, Tailscale &amp; Zero Trust Networking</strong></div></div></div>
+        <div class="p-content"><div class="p-num">08</div><div class="p-cat">Network Security / VPN</div><h3>WireGuard, Tailscale &amp; Zero Trust Networking</h3><div class="p-date">12 Oktober 2026</div><p>Mempelajari VPN modern menggunakan WireGuard dan Tailscale serta konsep Zero Trust untuk memahami akses jaringan yang lebih terkontrol.</p><div class="tags"><span class="tag">WireGuard</span><span class="tag">Tailscale</span><span class="tag">Zero Trust</span><span class="tag">VPN</span></div><a class="text-link" href="blog/wireguard-tailscale-zero-trust.html">Baca artikel <span class="arrow">→</span></a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+      <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="index.html">Home</a></li><li><a href="blog.html">Blog</a></li><li><a href="projects.html">Projects</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li></ul>
+      </nav>
+      <div><span class="small-label">Kontak</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="js/posts.js"></script>
+<script src="js/script.js"></script>
+<script src="js/animations.js"></script>
+</body>
+</html>

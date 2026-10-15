@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webmin Server Administration Lab — Ari Teguh</title>
+  <meta name="description" content="Administrasi server Linux dengan Webmin: monitoring resource, user, service, storage, dan konfigurasi dasar sistem.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Bali — Indonesia</span></div>
+    <nav class="navbar" aria-label="Navigasi utama">
+      <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+        <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </div>
+</header>
+<main>
+  <article class="article-wrap">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 07 — Webmin</nav>
+    <span class="article-cat">Server Administration</span>
+    <h1>Webmin Server Administration Lab</h1>
+    <div class="article-date">5 Oktober 2026 • Project 07 / 07</div>
+    <figure class="article-cover"><div class="img-frame"><img src="../images/projects/webmin.png" alt="Webmin Server Administration Lab"></div>
+      <figcaption class="photo-caption">Fig. 07 — Dashboard administrasi &amp; monitoring server.</figcaption>
+    </figure>
+    <div class="article-body">
+      <h2>Pendahuluan</h2>
+      <!-- Tambahkan detail sesuai kegiatan sebenarnya -->
+      <p>Melakukan praktik administrasi server Debian menggunakan Webmin untuk memahami pengelolaan sistem melalui antarmuka berbasis web. Lab ini saya kerjakan di atas VM Debian yang dibuat pada lab Proxmox sebelumnya.</p>
+      <h2>Tujuan</h2>
+      <ul><li>Memahami tugas rutin administrasi server.</li><li>Mempelajari modul-modul utama Webmin.</li><li>Melatih monitoring resource dan pengelolaan dasar sistem.</li></ul>
+      <h2>Tools / Perangkat</h2>
+      <ul><li>Virtual machine Debian dan Webmin</li><li>SSH dan terminal sebagai pendamping untuk verifikasi</li><li>Modul bawaan: dashboard, user, service, dan storage</li></ul>
+      <h2>Proses yang Dilakukan</h2>
+      <ol><li>Menginstal Webmin pada VM Debian dan mengakses dashboardnya.</li><li>Mengamankan akses login ke antarmuka Webmin.</li><li>Menjelajahi monitoring resource: CPU, memori, dan storage.</li><li>Mempraktikkan pengelolaan user, service, dan konfigurasi sistem dasar.</li><li>Memverifikasi perubahan penting melalui terminal.</li></ol>
+      <h2>Kendala / Hal yang Diperhatikan</h2>
+      <p>Antarmuka grafis memang memudahkan, tapi saya menyadari kemudahan itu bisa membuat malas memahami perintah di baliknya. Jadi setiap perubahan penting saya cek ulang lewat terminal.</p>
+      <h2>Hasil dan Pemahaman</h2>
+      <p>Saya memahami alur kerja administrasi dasar: pantau resource, kelola user dan service, ubah konfigurasi, lalu verifikasi. Ini latihan pengelolaan harian di lingkungan lab — bukan pengelolaan server operasional.</p>
+      <div class="callout">Panel admin yang baik tidak menggantikan pemahaman CLI — ia mempercepat orang yang sudah memahaminya.</div>
+      <h2>Hal yang Dipelajari</h2>
+      <ul><li>Alur kerja admin: monitor, analisis, aksi, verifikasi.</li><li>Dasar pengamanan akses administratif.</li><li>Kebiasaan mencatat setiap perubahan konfigurasi.</li></ul>
+      <h2>Kesimpulan</h2>
+      <p>Lab ini menutup rangkaian seri ini dengan rapi: dari merancang jaringan, membangun server, sampai merawatnya agar tetap sehat.</p>
+    </div>
+    <div class="back-link">
+      <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+      <a class="text-link" href="wireguard-tailscale-zero-trust.html">Artikel berikutnya <span class="arrow">→</span></a>
+    </div>
+  </article>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+      <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+      </nav>
+      <div><span class="small-label">Kontak</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="../js/posts.js"></script>
+<script src="../js/script.js"></script>
+<script src="../js/animations.js"></script>
+</body>
+</html>

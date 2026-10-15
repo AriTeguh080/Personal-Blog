@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Network Architecture Design — Ari Teguh</title>
+  <meta name="description" content="Mempelajari kondisi jaringan perusahaan dan membuat rancangan topologi untuk memahami distribusi koneksi antar area.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Bali — Indonesia</span></div>
+    <nav class="navbar" aria-label="Navigasi utama">
+      <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+        <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <article class="article-wrap">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 01 — Company Network</nav>
+    <span class="article-cat">Networking / Infrastructure</span>
+    <h1>Company Network Architecture Design</h1>
+    <div class="article-date">29 Agustus 2026 • Project 01 / 07</div>
+    <figure class="article-cover"><div class="img-frame"><img src="../images/projects/company-network.png" alt="Company Network Architecture Design"></div>
+      <figcaption class="photo-caption">Fig. 01 — Diagram arsitektur backbone &amp; segmentasi area.</figcaption>
+    </figure>
+    <div class="article-body">
+      <h2>Pendahuluan</h2>
+      <!-- Tambahkan detail sesuai kegiatan sebenarnya -->
+      <p>Mempelajari kondisi jaringan dan membuat rancangan topologi sebagai bagian dari proses memahami distribusi jaringan perusahaan. Latihan ini berangkat dari rasa penasaran yang sederhana: bagaimana koneksi dari ISP bisa didistribusikan dengan rapi ke banyak area atau lantai, dan perangkat apa saja yang dibutuhkan di setiap titiknya.</p>
+      <h2>Tujuan</h2>
+      <ul><li>Memahami alur distribusi jaringan, dari ISP, router, backbone, hingga ke tiap area.</li><li>Membuat rancangan topologi yang terstruktur sebagai latihan pemahaman.</li><li>Memahami pembagian jaringan, segmentasi, dan peran VLAN.</li><li>Mempertimbangkan kemungkinan penempatan core dan network device.</li></ul>
+      <h2>Tools / Perangkat</h2>
+      <ul><li>Aplikasi diagram untuk menggambar rancangan topologi</li><li>Konsep TCP/IP, subnetting, dan VLAN</li><li>Referensi arsitektur jaringan bertingkat (core, distribution, access)</li></ul>
+      <h2>Proses yang Dilakukan</h2>
+      <ol><li>Mempelajari kebutuhan tiap area: jenis perangkat dan gambaran kebutuhan koneksinya.</li><li>Menyusun alur distribusi: ISP, router, backbone, lalu distribusi ke tiap area.</li><li>Merancang pembagian jaringan dan segmentasi dengan VLAN.</li><li>Menentukan kemungkinan penempatan core dan network device.</li><li>Mendokumentasikan rancangan menjadi satu diagram topologi.</li></ol>
+      <h2>Kendala / Hal yang Diperhatikan</h2>
+      <p>Karena ini latihan perancangan, tantangan terbesarnya ada di cara berpikir: rancangan harus sederhana dan konsisten, tetapi tetap memberi ruang kalau jaringannya bertambah. Saya beberapa kali merevisi pembagian alamat sampai polanya terasa rapi dan masuk akal.</p>
+      <h2>Hasil dan Pemahaman</h2>
+      <p>Hasilnya berupa draft rancangan topologi yang terdokumentasi — murni latihan di atas kertas, bukan penerapan di lingkungan operasional. Dari latihan ini saya memahami bagaimana koneksi didistribusikan antar area, mengapa backbone dipisahkan dari segmen pengguna, dan di titik mana VLAN membantu kerapian.</p>
+      <div class="callout">Merancang di atas kertas ternyata cara tercepat untuk menemukan bagian yang belum saya pahami.</div>
+      <h2>Hal yang Dipelajari</h2>
+      <ul><li>Cara membaca alur jaringan dari hulu (ISP) sampai hilir (perangkat pengguna).</li><li>Pola hierarkis core, distribution, dan access.</li><li>Fungsi addressing plan dan dokumentasi topologi.</li></ul>
+      <h2>Kesimpulan</h2>
+      <p>Latihan ini menjadi fondasi lab-lab berikutnya. Saat nanti berlatih VLAN, DHCP, dan MikroTik, saya sudah punya gambaran besar tentang di mana setiap potongan itu berada.</p>
+    </div>
+    <div class="back-link">
+      <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+      <a class="text-link" href="vlan-dhcp.html">Artikel berikutnya <span class="arrow">→</span></a>
+    </div>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+      <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+      </nav>
+      <div><span class="small-label">Kontak</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="../js/posts.js"></script>
+<script src="../js/script.js"></script>
+<script src="../js/animations.js"></script>
+</body>
+</html>

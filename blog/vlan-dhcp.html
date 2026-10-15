@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLAN & Centralized DHCP Simulation — Ari Teguh</title>
+  <meta name="description" content="Simulasi segmentasi VLAN dan DHCP terpusat untuk beberapa kelompok perangkat di lingkungan simulasi jaringan.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Bali — Indonesia</span></div>
+    <nav class="navbar" aria-label="Navigasi utama">
+      <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+        <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </div>
+</header>
+<main>
+  <article class="article-wrap">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 02 — VLAN DHCP</nav>
+    <span class="article-cat">Networking</span>
+    <h1>VLAN &amp; Centralized DHCP Simulation</h1>
+    <div class="article-date">31 Agustus 2026 • Project 02 / 07</div>
+    <figure class="article-cover"><div class="img-frame"><img src="../images/projects/vlan-dhcp.png" alt="VLAN & Centralized DHCP Simulation"></div>
+      <figcaption class="photo-caption">Fig. 02 — Segmentasi VLAN dengan DHCP terpusat.</figcaption>
+    </figure>
+    <div class="article-body">
+      <h2>Pendahuluan</h2>
+      <!-- Tambahkan detail sesuai kegiatan sebenarnya -->
+      <p>Setelah membuat rancangan di atas kertas, saya ingin melihat cara kerjanya secara langsung — lewat simulasi. Menggunakan Cisco Packet Tracer, saya melakukan simulasi pembagian jaringan dengan VLAN dan DHCP terpusat untuk memahami bagaimana beberapa kelompok perangkat memperoleh alamat IP sesuai segmentasinya.</p>
+      <h2>Tujuan</h2>
+      <ul><li>Memahami segmentasi jaringan menggunakan VLAN.</li><li>Memahami distribusi alamat IP melalui DHCP terpusat.</li><li>Memahami fungsi trunk dan access pada perangkat jaringan.</li><li>Menguji konektivitas antar segmen di lingkungan simulasi.</li></ul>
+      <h2>Tools / Perangkat</h2>
+      <ul><li>Cisco Packet Tracer</li><li>Switch, router, dan PC client di dalam simulasi</li><li>Konsep VLAN, trunk dan access, DHCP, serta inter-VLAN routing</li></ul>
+      <h2>Proses yang Dilakukan</h2>
+      <ol><li>Membuat beberapa VLAN dan menetapkan port access untuk tiap kelompok perangkat.</li><li>Menghubungkan perangkat dengan trunk dan mengatur inter-VLAN routing.</li><li>Mengkonfigurasi DHCP terpusat dengan pool alamat untuk tiap segmen.</li><li>Menguji setiap client memperoleh IP yang sesuai dan menguji konektivitas antar VLAN.</li></ol>
+      <h2>Kendala / Hal yang Diperhatikan</h2>
+      <p>Di tengah simulasi, ada client yang tidak memperoleh alamat IP. Saya menelusurinya lapis demi lapis — mulai dari status trunk, penugasan VLAN di port access, sampai konfigurasi pool DHCP — sampai ketemu bagian yang terlewat.</p>
+      <h2>Hasil dan Pemahaman</h2>
+      <p>Simulasi membantu memahami alur distribusi DHCP antar VLAN dan fungsi trunk/access pada perangkat jaringan. Setiap kelompok perangkat memperoleh alamat sesuai segmennya, dan saya bisa melihat langsung bagaimana satu server DHCP melayani banyak segmen.</p>
+      <div class="callout">Satu hal yang saya sadari: DHCP terpusat membuat pengelolaan alamat jauh lebih mudah dilacak dibanding setiap segmen mengurus sendiri.</div>
+      <h2>Hal yang Dipelajari</h2>
+      <ul><li>Perbedaan port access dan trunk, serta kapan masing-masing dipakai.</li><li>Cara kerja distribusi DHCP lintas segmen.</li><li>Kebiasaan troubleshooting berlapis: VLAN dulu, DHCP kemudian, routing terakhir.</li></ul>
+      <h2>Kesimpulan</h2>
+      <p>Sebagai simulasi, lab ini memberi gambaran yang jelas tentang segmentasi — bekal yang nanti kepakai lagi saat membahas firewall dan hardening jaringan.</p>
+    </div>
+    <div class="back-link">
+      <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+      <a class="text-link" href="mikrotik-network-configuration.html">Artikel berikutnya <span class="arrow">→</span></a>
+    </div>
+  </article>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+      <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+      </nav>
+      <div><span class="small-label">Kontak</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="../js/posts.js"></script>
+<script src="../js/script.js"></script>
+<script src="../js/animations.js"></script>
+</body>
+</html>

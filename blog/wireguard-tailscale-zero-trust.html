@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WireGuard, Tailscale & Zero Trust Networking — Ari Teguh</title>
+  <meta name="description" content="Mempelajari konsep VPN modern menggunakan WireGuard dan Tailscale serta memahami pendekatan Zero Trust dalam mengatur akses jaringan.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Jakarta — Indonesia</span></div>
+    <nav class="navbar" aria-label="Navigasi utama">
+      <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+        <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </div>
+</header>
+<main>
+  <article class="article-wrap">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 08 — WireGuard &amp; Zero Trust</nav>
+    <span class="article-cat">Network Security / VPN</span>
+    <h1>WireGuard, Tailscale &amp; Zero Trust Networking</h1>
+    <div class="article-date">12 Oktober 2026 • Project 08 / 08</div>
+    <figure class="article-cover"><div class="img-frame"><img src="../images/projects/wireguard-tailscale.png" alt="WireGuard, Tailscale & Zero Trust Networking"></div>
+      <figcaption class="photo-caption">Fig. 08 — Tunnel terenkripsi dan akses berbasis identitas.</figcaption>
+    </figure>
+    <div class="article-body">
+      <h2>Pendahuluan</h2>
+      <!-- Tambahkan detail sesuai kegiatan sebenarnya -->
+      <p>Dalam proses mempelajari keamanan jaringan, saya mulai mengenal penggunaan VPN sebagai salah satu cara memberikan akses jaringan secara aman dari lokasi yang berbeda. Pada pembelajaran ini saya mempelajari WireGuard sebagai protokol VPN modern, Tailscale sebagai solusi networking yang memanfaatkan WireGuard, serta konsep Zero Trust sebagai pendekatan dalam mengatur akses berdasarkan identitas dan perangkat.</p>
+      <h2>Tujuan Pembelajaran</h2>
+      <ul><li>Memahami fungsi VPN dalam mengamankan akses jarak jauh.</li><li>Mengenal cara kerja dasar WireGuard.</li><li>Memahami fungsi Tailscale dan hubungannya dengan WireGuard.</li><li>Mengenal konsep Zero Trust.</li><li>Memahami bagaimana akses jaringan dapat dibatasi secara lebih terstruktur.</li></ul>
+      <h2>Mengenal WireGuard</h2>
+      <!-- Tambahkan detail sesuai kegiatan sebenarnya -->
+      <p>WireGuard merupakan teknologi VPN modern yang menggunakan tunnel terenkripsi untuk menghubungkan perangkat. Cara paling sederhana untuk membayangkannya adalah seperti ini: Device A, lalu tunnel terenkripsi WireGuard di tengahnya, lalu Device B. Data yang lewat di dalamnya terlindungi selama perjalanan.</p>
+      <p>Setiap perangkat dalam jaringan WireGuard berperan sebagai <em>peer</em> — masing-masing memiliki pasangan kunci berupa public key dan private key yang secara konsep berfungsi seperti gembok dan anak kuncinya. Saya mempelajari konsep ini secara dasar, tanpa masuk jauh ke detail kriptografinya.</p>
+      <h2>Mengenal Tailscale</h2>
+      <p>Tailscale menggunakan WireGuard sebagai dasar koneksi terenkripsinya, tetapi membantu menyederhanakan pengelolaan koneksi antar perangkat. Gambaran sederhananya: laptop, server, dan beberapa perangkat lain dapat tergabung dalam satu private network melalui jaringan Tailscale.</p>
+      <p>Yang saya pahami dari proses belajar ini: Tailscale membantu mengurangi kebutuhan konfigurasi WireGuard secara manual pada setiap peer, sehingga membangun konektivitas antar perangkat terasa lebih mudah dipraktikkan.</p>
+      <h2>Hubungan Tailscale dan WireGuard</h2>
+      <p>Supaya tidak tertukar, saya mencatat perbandingannya seperti ini:</p>
+      <p><strong>WireGuard:</strong> kontrol konfigurasi lebih langsung, peer biasanya dikonfigurasi manual, dan cocok untuk memahami dasar cara kerja VPN.</p>
+      <p><strong>Tailscale:</strong> menggunakan WireGuard di balik layarnya, setup lebih sederhana, membantu pengelolaan banyak perangkat, dan cocok untuk private mesh network. Keduanya bukan soal mana yang selalu lebih aman atau lebih baik — melainkan alat berbeda untuk kebutuhan berbeda.</p>
+      <h2>Mengenal Konsep Zero Trust</h2>
+      <p>Zero Trust punya semboyan yang mudah diingat: <em>never trust, always verify</em> — jangan langsung percaya, selalu verifikasi. Secara konsep, perangkat tidak otomatis dipercaya hanya karena berada di dalam suatu jaringan.</p>
+      <p>Akses dapat mempertimbangkan identitas pengguna, perangkat yang dipakai, hak aksesnya, dan resource yang dibutuhkan. Contoh sederhananya: Admin boleh mengakses server, Staff hanya mengakses layanan tertentu, dan Guest tidak boleh mengakses server internal. Prinsip di baliknya disebut <em>least privilege</em>: beri akses seminimal yang dibutuhkan.</p>
+      <h2>Alur Koneksi yang Dipelajari</h2>
+      <!-- Tambahkan detail sesuai kegiatan sebenarnya -->
+      <ol><li>Memahami kebutuhan: perangkat mana perlu terhubung dengan apa.</li><li>Mempelajari pembentukan tunnel terenkripsi antar peer.</li><li>Mencoba konsep mesh networking: tiap perangkat terhubung langsung dalam satu private network, termasuk menembus NAT secara dasar.</li><li>Mempraktikkan pembatasan akses antar perangkat berdasarkan peran dan kebutuhan.</li></ol>
+      <h2>Perbandingan Pendekatan</h2>
+      <p>Dari yang saya pelajari, VPN tradisional biasanya berpusat pada satu gerbang: siapa pun yang masuk ke terowongan dianggap bagian dari jaringan. Pendekatan modern seperti Zero Trust membalik cara pandangnya: setiap akses dinilai satu per satu berdasarkan identitas dan perangkat, walaupun koneksinya sudah terenkripsi.</p>
+      <p>Perbandingan ini saya pahami sebatas konsep dan praktik dasar — cukup untuk melihat mengapa identitas dan pembatasan akses menjadi sama pentingnya dengan enkripsi itu sendiri.</p>
+      <h2>Hal yang Dipelajari</h2>
+      <p>Dari pembelajaran ini saya memahami bahwa keamanan akses jaringan tidak hanya bergantung pada adanya tunnel VPN. WireGuard menyediakan koneksi terenkripsi, sedangkan tools seperti Tailscale dapat membantu menyederhanakan konektivitas antar perangkat. Konsep Zero Trust kemudian memberikan perspektif tambahan bahwa setiap akses tetap perlu dibatasi sesuai kebutuhan pengguna dan perangkat.</p>
+      <div class="callout">Enkripsi menjaga perjalanan data; Zero Trust menjaga siapa boleh pergi ke mana.</div>
+      <h2>Kesimpulan</h2>
+      <p>Pembelajaran ini mempertemukan dua sisi perjalanan saya: networking yang membangun konektivitas, dan security yang membatasinya dengan bijak. Masih banyak yang perlu didalami, tetapi fondasi konsepnya kini sudah ada tempatnya.</p>
+    </div>
+    <div class="back-link">
+      <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+      <a class="text-link" href="../projects.html">Lihat semua project <span class="arrow">→</span></a>
+    </div>
+  </article>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+      <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+      </nav>
+      <div><span class="small-label">Kontak</span>
+        <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="../js/posts.js"></script>
+<script src="../js/script.js"></script>
+<script src="../js/animations.js"></script>
+</body>
+</html>
