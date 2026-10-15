@@ -48,13 +48,14 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
 
-    // Ukur tinggi header aktual untuk posisi menu mobile fixed.
-    // Menu memakai top:var(--header-h) agar selalu tepat di bawah header
-    // pada posisi scroll mana pun, tanpa menggeser scroll user.
+    // Ukur tinggi header aktual untuk posisi dropdown mobile fixed dan
+    // offset body. Tanpa mengubah scroll user.
     function syncHeaderH() {
       if (!header) return;
       try {
-        document.documentElement.style.setProperty("--header-h", header.offsetHeight + "px");
+        var h = header.offsetHeight + "px";
+        document.documentElement.style.setProperty("--header-h", h);
+        document.documentElement.style.setProperty("--mobile-header-height", h);
       } catch (e) {}
     }
     syncHeaderH();
@@ -77,10 +78,6 @@
       });
       mobileNav.querySelectorAll("a").forEach(function (a) {
         a.addEventListener("click", closeMenu);
-      });
-      // klik backdrop (di luar panel) menutup menu
-      mobileNav.addEventListener("click", function (e) {
-        if (e.target === mobileNav) closeMenu();
       });
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") closeMenu();
@@ -249,7 +246,7 @@
         blogRows.innerHTML = rest.map(function (p) {
           return (
             '<a class="post-row" href="' + p.link + '">' +
-              '<span class="post-thumb"><img src="' + p.image + '" alt="' + p.title + '" loading="lazy" decoding="async"></span>' +
+              '<span class="post-thumb"><img src="' + p.image + '" alt="' + p.title + '" loading="eager" decoding="async"></span>' +
               "<span><span class='post-meta'>" + p.num + " • " + p.category + " • " + p.date + "</span><h3>" + p.title + "</h3><span style='color:var(--text-secondary);font-size:.94rem'>" + p.description + "</span></span>" +
               '<span class="go" aria-hidden="true">→</span>' +
             "</a>"
@@ -264,8 +261,9 @@
     if (projWrap && window.posts) {
       projWrap.innerHTML = window.posts.map(function (p, i) {
         var rev = i % 2 === 1 ? " reverse" : "";
-        // 2 project pertama dekat viewport awal → eager; sisanya lazy.
-        var loading = i < 2 ? "eager" : "lazy";
+        // Sementara eager untuk semua (kompatibilitas in-app browser);
+        // lazy boleh diterapkan kembali nanti hanya untuk gambar jauh di bawah.
+        var loading = "eager";
         return (
           '<div class="project-row' + rev + '">' +
             '<div class="p-media"><div class="img-frame">' +

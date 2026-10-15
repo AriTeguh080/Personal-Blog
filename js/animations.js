@@ -8,9 +8,10 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     if (reduced()) return; // hormati prefers-reduced-motion
-    if (!window.gsap) return; // konten tetap terlihat tanpa animasi
-
-    gsap.registerPlugin(ScrollTrigger);
+    if (typeof gsap === "undefined") return; // konten tetap terlihat tanpa animasi
+    // ScrollTrigger opsional: jika CDN-nya gagal, animasi scroll
+    // menjadi reveal biasa — gambar/konten tetap terlihat normal.
+    if (typeof ScrollTrigger !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
     var D = 0.85; // duration 0.7–1 dtk
     var EASE = "power2.out";
