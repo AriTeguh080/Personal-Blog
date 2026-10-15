@@ -87,7 +87,7 @@
     } catch (e) {}
 
     // ---------- Image fallback: jangan tampilkan broken image ----------
-    // Jika file png belum ada, ganti dengan placeholder editorial (SVG data URI, palette vintage).
+    // Jika file webp belum ada, ganti dengan placeholder editorial (SVG data URI, palette vintage).
     function editorialPlaceholder(label) {
       var t = (label || "ARI TEGUH").slice(0, 28);
       var svg =

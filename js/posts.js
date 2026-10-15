@@ -7,7 +7,7 @@ const posts = [
     title: "Company Network Architecture Design",
     category: "Networking / Infrastructure",
     date: "29 Agustus 2026",
-    image: "images/projects/company-network.png",
+    image: "images/projects/company-network.webp",
     description: "Mempelajari kondisi jaringan dan membuat rancangan topologi untuk memahami distribusi koneksi, segmentasi, dan struktur jaringan antar area.",
     link: "blog/company-network-architecture.html",
     tags: ["Networking", "Infrastructure", "Routing", "VLAN"]
@@ -18,7 +18,7 @@ const posts = [
     title: "VLAN & Centralized DHCP Simulation",
     category: "Networking",
     date: "31 Agustus 2026",
-    image: "images/projects/vlan-dhcp.png",
+    image: "images/projects/vlan-dhcp.webp",
     description: "Simulasi segmentasi jaringan menggunakan VLAN dan DHCP terpusat untuk memahami pembagian jaringan dan distribusi alamat IP.",
     link: "blog/vlan-dhcp.html",
     tags: ["Cisco", "VLAN", "DHCP", "Routing"]
@@ -29,7 +29,7 @@ const posts = [
     title: "MikroTik Network Configuration Lab",
     category: "Networking",
     date: "4 September 2026",
-    image: "images/projects/mikrotik.png",
+    image: "images/projects/mikrotik.webp",
     description: "Praktik konfigurasi dasar MikroTik meliputi DHCP, NAT, bridge, VLAN, dan distribusi koneksi jaringan.",
     link: "blog/mikrotik-network-configuration.html",
     tags: ["MikroTik", "NAT", "DHCP", "Bridge", "VLAN"]
@@ -40,7 +40,7 @@ const posts = [
     title: "Server Hardware Upgrade & Deployment",
     category: "Server / Infrastructure",
     date: "11 September 2026",
-    image: "images/projects/server-hardware.png",
+    image: "images/projects/server-hardware.webp",
     description: "Persiapan dan peningkatan perangkat server melalui pemasangan SSD, pengecekan hardware, dan persiapan sistem sebelum virtualisasi.",
     link: "blog/server-hardware-upgrade.html",
     tags: ["Server Hardware", "SSD", "Infrastructure", "Linux"]
@@ -51,7 +51,7 @@ const posts = [
     title: "Proxmox Virtualization Server",
     category: "Server / Virtualization",
     date: "17 September 2026",
-    image: "images/projects/proxmox.png",
+    image: "images/projects/proxmox.webp",
     description: "Instalasi Proxmox VE dan praktik pembuatan virtual machine Debian untuk memahami dasar virtualisasi server.",
     link: "blog/proxmox-virtualization.html",
     tags: ["Proxmox VE", "Debian", "Linux", "Virtualization"]
@@ -62,7 +62,7 @@ const posts = [
     title: "IOC & Threat Intelligence Analysis",
     category: "Cyber Security",
     date: "26 September 2026",
-    image: "images/projects/threat-intelligence.png",
+    image: "images/projects/threat-intelligence.webp",
     description: "Pembelajaran analisis Indicator of Compromise dan pemanfaatan threat intelligence untuk memahami indikator aktivitas mencurigakan.",
     link: "blog/ioc-threat-intelligence.html",
     tags: ["IOC", "Threat Intelligence", "CISA", "ThreatFox"]
@@ -73,7 +73,7 @@ const posts = [
     title: "Webmin Server Administration Lab",
     category: "Server Administration",
     date: "5 Oktober 2026",
-    image: "images/projects/webmin.png",
+    image: "images/projects/webmin.webp",
     description: "Praktik administrasi server Debian menggunakan Webmin untuk monitoring resource dan pengelolaan konfigurasi dasar sistem.",
     link: "blog/webmin-server-administration.html",
     tags: ["Webmin", "Debian", "Linux", "Server Administration"]
@@ -84,7 +84,7 @@ const posts = [
     title: "WireGuard, Tailscale & Zero Trust Networking",
     category: "Network Security / VPN",
     date: "12 Oktober 2026",
-    image: "images/projects/wireguard-tailscale.png",
+    image: "images/projects/wireguard-tailscale.webp",
     description: "Mempelajari VPN modern menggunakan WireGuard dan Tailscale serta konsep Zero Trust untuk memahami akses jaringan yang lebih terkontrol.",
     link: "blog/wireguard-tailscale-zero-trust.html",
     tags: ["WireGuard", "Tailscale", "Zero Trust", "VPN"]
