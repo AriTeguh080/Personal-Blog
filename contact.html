@@ -25,11 +25,24 @@
       </ul>
       <div class="nav-actions">
         <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
-        <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+        <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileNav">☰</button>
       </div>
     </nav>
   </div>
 </header>
+
+<!-- Mobile nav overlay: anak langsung body agar position:fixed selalu menempel viewport -->
+<div class="mobile-nav-overlay" id="mobileNav" aria-hidden="true">
+  <nav class="mobile-nav-panel" aria-label="Menu mobile">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</div>
 
 <main>
   <section class="page-hero">

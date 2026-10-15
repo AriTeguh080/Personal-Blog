@@ -61,23 +61,26 @@
     window.addEventListener("load", syncHeaderH);
 
     var burger = document.querySelector(".hamburger");
-    var nav = document.querySelector(".nav-links");
-    if (burger && nav) {
-      var closeMenu = function () {
-        nav.classList.remove("open");
-        document.body.classList.remove("menu-open");
-        burger.setAttribute("aria-expanded", "false");
-        burger.textContent = "☰";
-      };
-      burger.addEventListener("click", function () {
-        syncHeaderH(); // ukur ulang sebelum tampil, tanpa mengubah scroll
-        var open = nav.classList.toggle("open");
+    var mobileNav = document.getElementById("mobileNav");
+    if (burger && mobileNav) {
+      var setOpen = function (open) {
+        // Posisi scroll user tidak pernah diubah saat buka/tutup menu.
         document.body.classList.toggle("menu-open", open);
         burger.setAttribute("aria-expanded", open ? "true" : "false");
         burger.textContent = open ? "✕" : "☰";
+        mobileNav.setAttribute("aria-hidden", open ? "false" : "true");
+      };
+      var closeMenu = function () { setOpen(false); };
+      burger.addEventListener("click", function () {
+        syncHeaderH(); // ukur ulang sebelum tampil, tanpa mengubah scroll
+        setOpen(!document.body.classList.contains("menu-open"));
       });
-      nav.querySelectorAll("a").forEach(function (a) {
+      mobileNav.querySelectorAll("a").forEach(function (a) {
         a.addEventListener("click", closeMenu);
+      });
+      // klik backdrop (di luar panel) menutup menu
+      mobileNav.addEventListener("click", function (e) {
+        if (e.target === mobileNav) closeMenu();
       });
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") closeMenu();
@@ -92,7 +95,7 @@
     // ---------- Active nav link ----------
     try {
       var path = window.location.pathname.split("/").pop() || "index.html";
-      document.querySelectorAll(".nav-links a, .footer-links a").forEach(function (a) {
+      document.querySelectorAll(".nav-links a, .mobile-nav-panel a, .footer-links a").forEach(function (a) {
         var href = a.getAttribute("href");
         if (!href) return;
         var file = href.split("/").pop();
