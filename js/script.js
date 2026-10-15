@@ -86,8 +86,14 @@
       });
     } catch (e) {}
 
-    // ---------- Image fallback: jangan tampilkan broken image ----------
-    // Jika file webp belum ada, ganti dengan placeholder editorial (SVG data URI, palette vintage).
+    // ---------- Image fallback: HANYA saat event "error" benar-benar terjadi ----------
+    // Aturan keras:
+    // - Placeholder/fallback TIDAK BOLEH dipicu oleh img.complete / naturalWidth
+    //   sesaat setelah render, karena gambar lazy di bawah fold memang belum
+    //   diunduh pada saat itu (complete=false) dan itu BUKAN kegagalan.
+    // - Satu-satunya kondisi gagal yang valid: event "error", atau
+    //   complete===true DAN naturalWidth===0 (fetch selesai tapi gagal —
+    //   menutup kasus error yang terlewat sebelum listener dipasang).
     function editorialPlaceholder(label) {
       var t = (label || "ARI TEGUH").slice(0, 28);
       var svg =
@@ -110,18 +116,46 @@
       img.style.filter = "sepia(.15) saturate(.9)";
     }
 
-    document.querySelectorAll("img").forEach(function (img) {
-      img.addEventListener("error", function () { guard(img); });
-      // jika src kosong
-      if (!img.getAttribute("src")) guard(img);
-    });
+    function frameOf(img) { return (img && img.closest) ? img.closest(".img-frame") : null; }
 
-    // cek naturalWidth setelah load (untuk file 0-byte / 404 cache)
-    window.addEventListener("load", function () {
-      document.querySelectorAll("img").forEach(function (img) {
-        if (img.naturalWidth === 0 && img.src && !img.src.startsWith("data:")) guard(img);
-      });
-    });
+    // Foto asli tampil: pastikan img terlihat dan fallback tersembunyi.
+    // Ini menjamin placeholder tidak pernah menutupi gambar yang berhasil dimuat.
+    function showReal(img) {
+      img.style.display = "";
+      var fr = frameOf(img);
+      var fb = fr ? fr.querySelector(".img-fallback") : null;
+      if (fb) fb.style.display = "none";
+    }
+
+    function showFallback(img) {
+      img.style.display = "none";
+      var fr = frameOf(img);
+      var fb = fr ? fr.querySelector(".img-fallback") : null;
+      if (fb) fb.style.display = "flex";
+    }
+
+    function onImgError(img) {
+      if (frameOf(img)) showFallback(img);
+      else guard(img);
+    }
+
+    // Pasang load + error pada satu img. Aman untuk lazy: selama
+    // complete===false kita tidak melakukan apa-apa selain menunggu event.
+    function wireImg(img) {
+      if (!img || img.dataset.wired === "1") return;
+      img.dataset.wired = "1";
+      img.addEventListener("load", function () { showReal(img); });
+      img.addEventListener("error", function () { onImgError(img); });
+      if (!img.getAttribute("src")) { onImgError(img); return; }
+      try {
+        if (img.complete && img.naturalWidth === 0) onImgError(img);
+      } catch (e) {}
+    }
+
+    // Semua img statis: cukup pasang listener. SENGAJA tidak ada sapuan
+    // naturalWidth saat window load — sapuan itu menukar src gambar lazy
+    // yang belum diunduh menjadi placeholder SVG permanen.
+    document.querySelectorAll("img").forEach(wireImg);
 
     // ---------- Render home latest (3 TERBARU) ----------
     var latestWrap = document.getElementById("latest-articles");
@@ -130,7 +164,7 @@
       latestWrap.innerHTML = latest.map(function (p) {
         return (
           '<a class="latest-card" href="' + p.link + '">' +
-            '<img src="' + p.image + '" alt="' + p.title + '" loading="lazy" onerror="this.onerror=null;this.src=\'' + editorialPlaceholder(p.title).replace(/'/g, "%27") + '\'">' +
+            '<img src="' + p.image + '" alt="' + p.title + '" loading="eager" decoding="async">' +
             '<div class="latest-body">' +
               '<span class="post-meta">' + p.category + " • " + p.date + "</span>" +
               "<h3>" + p.title + "</h3>" +
@@ -139,10 +173,8 @@
           "</a>"
         );
       }).join("");
-      // guard hasil render
-      latestWrap.querySelectorAll("img").forEach(function (img) {
-        img.addEventListener("error", function () { guard(img); });
-      });
+      // wire hasil render (error saja yang memicu placeholder)
+      latestWrap.querySelectorAll("img").forEach(wireImg);
     }
 
     // ---------- Render home featured projects (3 pilihan) ----------
@@ -155,7 +187,7 @@
         return (
           '<div class="project-row' + rev + '">' +
             '<div class="p-media"><div class="img-frame">' +
-              '<img src="' + p.image + '" alt="' + p.title + '" loading="lazy">' +
+              '<img src="' + p.image + '" alt="' + p.title + '" loading="eager" decoding="async">' +
               '<div class="img-fallback"><span>Editorial Plate • ' + p.num + '</span><strong>' + p.title + "</strong></div>" +
             "</div></div>" +
             '<div class="p-content">' +
@@ -170,30 +202,20 @@
           "</div>"
         );
       }).join("");
-      featWrap.querySelectorAll("img").forEach(function (img) {
-        img.addEventListener("error", function () {
-          img.style.display = "none";
-          var fb = img.parentElement.querySelector(".img-fallback");
-          if (fb) fb.style.display = "flex";
-        });
-        if (img.complete && img.naturalWidth === 0) {
-          img.style.display = "none";
-          var fb2 = img.parentElement.querySelector(".img-fallback");
-          if (fb2) fb2.style.display = "flex";
-        }
-      });
+      // Bingkai picks homepage: load → foto tampil, error → fallback.
+      featWrap.querySelectorAll("img").forEach(wireImg);
     }
 
     // ---------- Render blog page list ----------
     var blogFeatured = document.getElementById("blog-featured");
     var blogRows = document.getElementById("blog-rows");
     if ((blogFeatured || blogRows) && window.posts) {
-      // featured = artikel terbaru (07)
+      // featured = artikel terbaru (item terakhir posts)
       var f = window.posts[window.posts.length - 1];
       if (blogFeatured && f) {
         blogFeatured.innerHTML =
           '<div class="featured-post">' +
-            '<div class="featured-media"><img src="' + f.image + '" alt="' + f.title + '"></div>' +
+            '<div class="featured-media"><img src="' + f.image + '" alt="' + f.title + '" loading="eager" decoding="async"></div>' +
             '<div class="featured-body">' +
               '<span class="post-meta">Featured • ' + f.category + "</span>" +
               "<h3>" + f.title + "</h3>" +
@@ -203,22 +225,20 @@
             "</div>" +
           "</div>";
         var fi = blogFeatured.querySelector("img");
-        if (fi) fi.addEventListener("error", function () { guard(fi); });
+        if (fi) wireImg(fi);
       }
       if (blogRows) {
-        var rest = window.posts.slice(0, -1); // 01-06, tetap terlama->terbaru
+        var rest = window.posts.slice(0, -1); // semua kecuali terbaru, tetap terlama->terbaru
         blogRows.innerHTML = rest.map(function (p) {
           return (
             '<a class="post-row" href="' + p.link + '">' +
-              '<span class="post-thumb"><img src="' + p.image + '" alt="' + p.title + '" loading="lazy"></span>' +
+              '<span class="post-thumb"><img src="' + p.image + '" alt="' + p.title + '" loading="lazy" decoding="async"></span>' +
               "<span><span class='post-meta'>" + p.num + " • " + p.category + " • " + p.date + "</span><h3>" + p.title + "</h3><span style='color:var(--text-secondary);font-size:.94rem'>" + p.description + "</span></span>" +
               '<span class="go" aria-hidden="true">→</span>' +
             "</a>"
           );
         }).join("");
-        blogRows.querySelectorAll("img").forEach(function (img) {
-          img.addEventListener("error", function () { guard(img); });
-        });
+        blogRows.querySelectorAll("img").forEach(wireImg);
       }
     }
 
@@ -227,10 +247,12 @@
     if (projWrap && window.posts) {
       projWrap.innerHTML = window.posts.map(function (p, i) {
         var rev = i % 2 === 1 ? " reverse" : "";
+        // 2 project pertama dekat viewport awal → eager; sisanya lazy.
+        var loading = i < 2 ? "eager" : "lazy";
         return (
           '<div class="project-row' + rev + '">' +
             '<div class="p-media"><div class="img-frame">' +
-              '<img src="' + p.image + '" alt="' + p.title + '" loading="lazy">' +
+              '<img src="' + p.image + '" alt="' + p.title + '" loading="' + loading + '" decoding="async">' +
               '<div class="img-fallback"><span>Editorial Plate • ' + p.num + '</span><strong>' + p.title + "</strong></div>" +
             "</div></div>" +
             '<div class="p-content">' +
@@ -245,13 +267,7 @@
           "</div>"
         );
       }).join("");
-      projWrap.querySelectorAll("img").forEach(function (img) {
-        img.addEventListener("error", function () {
-          img.style.display = "none";
-          var fb = img.parentElement.querySelector(".img-fallback");
-          if (fb) fb.style.display = "flex";
-        });
-      });
+      projWrap.querySelectorAll("img").forEach(wireImg);
     }
   });
 })();
