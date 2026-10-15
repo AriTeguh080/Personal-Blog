@@ -48,6 +48,18 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
 
+    // Ukur tinggi header aktual untuk posisi menu mobile fixed.
+    // Menu memakai top:var(--header-h) agar selalu tepat di bawah header
+    // pada posisi scroll mana pun, tanpa menggeser scroll user.
+    function syncHeaderH() {
+      if (!header) return;
+      try {
+        document.documentElement.style.setProperty("--header-h", header.offsetHeight + "px");
+      } catch (e) {}
+    }
+    syncHeaderH();
+    window.addEventListener("load", syncHeaderH);
+
     var burger = document.querySelector(".hamburger");
     var nav = document.querySelector(".nav-links");
     if (burger && nav) {
@@ -58,6 +70,7 @@
         burger.textContent = "☰";
       };
       burger.addEventListener("click", function () {
+        syncHeaderH(); // ukur ulang sebelum tampil, tanpa mengubah scroll
         var open = nav.classList.toggle("open");
         document.body.classList.toggle("menu-open", open);
         burger.setAttribute("aria-expanded", open ? "true" : "false");
@@ -71,6 +84,7 @@
       });
       // tutup otomatis saat kembali ke desktop agar tidak nyangkut
       window.addEventListener("resize", function () {
+        syncHeaderH();
         if (window.innerWidth > 768) closeMenu();
       });
     }

@@ -544,7 +544,13 @@ a.e-label:hover{transform:translateY(-2px);background:var(--accent);color:#F6F2E
   .brand-sub{display:none}
   .nav-links{
     display:none;
-    position:absolute;top:100%;left:0;right:0;z-index:200;
+    /* Fixed menempel VIEWPORT: terlihat di posisi scroll mana pun.
+       (Absolute sebelumnya menggantung pada container sehingga menu
+       bisa jatuh di luar viewport saat halaman sudah di-scroll.) */
+    position:fixed;top:var(--header-h,68px);left:0;right:0;z-index:999;
+    max-height:calc(100vh - var(--header-h,68px));
+    max-height:calc(100dvh - var(--header-h,68px));
+    overflow-y:auto;overflow-x:hidden;
     flex-direction:column;align-items:stretch;gap:0;
     background:var(--surface);
     border-bottom:2px solid var(--border-strong);
@@ -563,7 +569,7 @@ a.e-label:hover{transform:translateY(-2px);background:var(--accent);color:#F6F2E
   }
   .nav-links li:last-child a{border-bottom:none}
   .nav-links a::after{display:none}
-  .site-header{position:sticky}
+  .site-header{position:sticky;top:0;z-index:1000}
   .site-header .container{position:relative}
   .hamburger{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
   .nav-actions{flex-shrink:0}
@@ -669,6 +675,12 @@ a.e-label:hover{transform:translateY(-2px);background:var(--accent);color:#F6F2E
   body{font-size:16px}
   .container{padding-left:20px;padding-right:20px}
   .navbar{min-height:64px}
+  /* fallback top menu saat JS belum mengukur header (navbar 64px di ≤480px) */
+  .nav-links{
+    top:var(--header-h,64px);
+    max-height:calc(100vh - var(--header-h,64px));
+    max-height:calc(100dvh - var(--header-h,64px));
+  }
   .brand-mark{font-size:1rem;padding:5px 8px}
   .theme-toggle,.hamburger{width:42px;height:42px;min-width:42px;min-height:42px}
   .hero{padding:32px 0 48px}
