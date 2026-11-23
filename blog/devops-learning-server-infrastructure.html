@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps Learning Server Infrastructure — Ari Teguh</title>
+  <meta name="description" content="Mengembangkan lingkungan server virtual untuk pembelajaran DevOps menggunakan Proxmox VE, MikroTik CHR, Ubuntu dan Debian VM untuk Ansible, Docker/Kubernetes, storage, SSH, routing, Tailscale, firewall, dan remote access. Lingkungan hands‑on lab, bukan production Kubernetes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=20261015-ios1">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Jakarta — Indonesia</span></div>
+      <nav class="navbar" aria-label="Navigasi utama">
+        <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+          <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileNav">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobileNav" aria-hidden="true">
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main>
+    <article class="article-wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 15 — DevOps Infrastructure</nav>
+      <span class="article-cat">Server / Infrastructure / DevOps</span>
+      <h1>DevOps Learning Server Infrastructure</h1>
+      <div class="article-date">20 November 2026 • Project 15 / 15</div>
+      <figure class="article-cover"><div class="img-frame"><img src="../images/projects/warm_homelab_proxmox_workstation.webp" alt="DevOps Learning Server Infrastructure" loading="eager" decoding="async"></div>
+        <figcaption class="photo-caption">Fig. 15 — Lingkungan server virtual untuk pembelajaran DevOps.</figcaption>
+      </figure>
+      <div class="article-body">
+        <h2>Pendahuluan</h2>
+        <p>Project ini berbeda dari project Proxmox saya yang lama pada bulan September. Waktu itu fokusnya masih pada instalasi Proxmox, virtualisasi dasar, dan menjalankan satu VM Debian. Kali ini, di bulan November, lingkungan yang saya bangun berkembang menjadi infrastruktur pembelajaran DevOps yang lebih luas: beberapa VM dengan peran berbeda, jaringan virtual yang menghubungkan semuanya, dan akses jarak jauh supaya lab bisa saya pakai dari luar jaringan lokal.</p>
+        <p>Alasan pengembangannya cukup praktis. Tools seperti Ansible, Docker, dan Kubernetes lebih masuk akal dipelajari ketika ada beberapa mesin dengan peran yang berbeda dan saling terhubung, bukan hanya satu VM serba guna. Saya juga ingin melatih sisi operasionalnya: bagaimana mesin-mesin itu diberi alamat, bagaimana trafik antar mesin diatur, dan bagaimana akses dari luar dikendalikan. Jadi project ini bukan hanya soal memasang layanan, tetapi soal merancang lingkungan tempat layanan-layanan itu belajar hidup bersama.</p>
+        <p>Pembelajaran sebelumnya banyak membantu di sini. Pengalaman server hardware dan Proxmox menjadi fondasi platformnya, lab jaringan memberi bekal routing antar VM, dan pembelajaran WireGuard serta Tailscale sebelumnya menjadi dasar akses jarak jauhnya. Semua itu bertemu dalam satu lingkungan yang saya sebut sebagai learning environment dan eksperimen teknis yang sengaja dibatasi untuk belajar.</p>
+        <h2>Tujuan</h2>
+        <ul>
+          <li>Membangun lingkungan pembelajaran DevOps multi-VM di atas Proxmox VE dengan peran yang saling melengkapi.</li>
+          <li>Mempraktikkan routing antar VM menggunakan MikroTik CHR sebagai router virtual.</li>
+          <li>Menggunakan Ansible untuk otomatisasi konfigurasi antar VM.</li>
+          <li>Menyediakan tempat belajar Docker/Kubernetes serta storage dan Git pada VM yang terpisah.</li>
+          <li>Mengaktifkan remote access dengan SSH dan Tailscale, serta mempelajari firewall sebagai kontrol akses.</li>
+        </ul>
+        <h2>Tools / Perangkat</h2>
+        <ul>
+          <li>Server fisik dan Proxmox VE sebagai hypervisor.</li>
+          <li>MikroTik CHR sebagai router jaringan virtual.</li>
+          <li>VM Ubuntu Server untuk Ansible.</li>
+          <li>VM Ubuntu Server untuk Docker dan Kubernetes.</li>
+          <li>VM Debian untuk storage, Git, dan project.</li>
+          <li>SSH dan Tailscale untuk akses dan remote access.</li>
+          <li>Firewall untuk pembelajaran kontrol akses dan trafik jaringan.</li>
+        </ul>
+        <h2>Proses yang Dilakukan</h2>
+        <ol>
+          <li>Melakukan troubleshooting hardware server terlebih dahulu agar platform berjalan stabil.</li>
+          <li>Menyiapkan Proxmox VE sebagai tempat seluruh VM berjalan.</li>
+          <li>Menjalankan MikroTik CHR untuk routing jaringan virtual antar VM.</li>
+          <li>Membuat VM Ubuntu untuk Ansible sebagai titik otomatisasi konfigurasi.</li>
+          <li>Membuat VM Ubuntu lain untuk eksperimen Docker dan Kubernetes.</li>
+          <li>Membuat VM Debian untuk storage, Git, dan project.</li>
+          <li>Menghubungkan semuanya melalui routing antar VM, menyiapkan SSH, memasang Tailscale untuk remote access, dan menerapkan aturan firewall.</li>
+        </ol>
+        <p>Pembagian VM saya rancang berdasarkan peran, bukan sekadar jumlah. Ubuntu untuk Ansible menjadi tempat saya belajar mengotomatiskan konfigurasi mesin lain; Ubuntu untuk Docker/Kubernetes menjadi wadah eksperimen container dan orchestration dalam skala lab; Debian menjadi tempat storage, Git, dan project disimpan, sehingga data pembelajaran punya rumah yang jelas. MikroTik CHR menghubungkan semuanya, dan di sinilah pengetahuan networking saya terpakai lagi: VM dengan peran berbeda perlu rute yang benar untuk saling berkomunikasi, dan trafik antar peran itu bisa saya amati serta kendalikan.</p>
+        <p>Tailscale saya gunakan untuk membantu remote access dari luar jaringan lokal, melanjutkan apa yang sudah saya pelajari pada lab VPN sebelumnya. Dengan begitu lab bisa saya akses seperti gaya kerja remote atau WFH, tanpa harus membuka seluruh layanan ke jaringan luar. Firewall menjadi bagian dari pembelajaran kontrol akses dan trafik: aturan dibuat untuk mengizinkan jalur yang memang dibutuhkan, seperti SSH dan koneksi Tailscale, sambil membatasi sisanya. Bagi saya, memasang firewall di sini bukan sekadar menyalakan fitur keamanan, tetapi berlatih memutuskan siapa boleh mengakses apa.</p>
+        <h2>Kendala / Hal yang Diperhatikan</h2>
+        <p>Bagian awal project ini diisi troubleshooting hardware server. Sebelum VM bisa berjalan stabil, kondisi perangkat perlu diperiksa dan dibereskan terlebih dahulu; pengalaman ini mengingatkan saya bahwa lapisan fisik tetap menjadi fondasi yang tidak bisa dilewati, betapapun menariknya lapisan virtual di atasnya. Setelah platform stabil, tantangan berpindah ke sisi jaringan dan akses.</p>
+        <p>Routing antar VM adalah hal yang perlu diperhatikan dengan teliti. Ketika satu VM tidak dapat menjangkau VM lain, penyebabnya sering kali bukan layanan yang berjalan di dalamnya, melainkan rute atau aturan firewall di antaranya. Karena itu saya memeriksa konektivitas antar peran secara bertahap, memastikan setiap VM dapat mencapai yang lain sesuai kebutuhan, sebelum menganggap layanan di dalamnya bermasalah. Untuk remote access, aturan firewall juga harus seimbang: cukup terbuka untuk SSH dan Tailscale yang saya butuhkan, tetapi tidak membuka akses yang tidak diperlukan. Kesalahan kecil pada aturan dapat mengunci akses saya sendiri ke lab, sehingga perubahan aturan perlu diuji satu per satu.</p>
+        <h2>Hasil dan Pemahaman</h2>
+        <p>Hasil akhirnya adalah lingkungan belajar dengan beberapa VM yang saling terhubung sesuai perannya. Ansible dapat menjangkau VM target untuk latihan otomatisasi, eksperimen Docker dan Kubernetes berjalan pada VM Ubuntu yang terpisah, dan Debian menjadi tempat storage serta Git untuk project. Routing melalui MikroTik CHR membuat komunikasi antar VM berjalan, dan pengujian konektivitas antar peran menunjukkan lingkungan ini dapat dipakai untuk belajar, bukan hanya berdiri sebagai kumpulan VM.</p>
+        <p>Remote access melalui kombinasi SSH dan Tailscale memungkinkan lab diakses dari luar jaringan lokal, sesuai tujuan awal saya. Firewall yang menyertainya membuat akses tersebut tetap terkendali, dan proses menyusun aturannya sendiri menjadi bahan belajar tentang kontrol akses dan trafik jaringan.</p>
+        <p>Dari project ini saya memahami bahwa infrastruktur pembelajaran perlu dirancang berdasarkan peran dan konektivitas, bukan ditumpuk tanpa arah. Setiap VM punya alasan untuk ada, dan jaringan di antaranya adalah bagian dari desain, bukan kebetulan. Saya menyebut seluruh lingkungan ini sebagai learning environment dan eksperimen teknis: cukup nyata untuk melatih keterampilan DevOps, tetapi tidak saya klaim sebagai sistem yang siap dipakai untuk kebutuhan operasional skala besar.</p>
+        <div class="callout">Environment ini membantu saya melihat server, jaringan, remote access, dan automation sebagai satu sistem yang saling terhubung.</div>
+        <h2>Hal yang Dipelajari</h2>
+        <ul>
+          <li>Lingkungan DevOps lebih mudah dipelajari ketika VM dibagi berdasarkan peran yang jelas.</li>
+          <li>Routing antar VM dan firewall adalah bagian dari desain lingkungan, bukan pelengkap.</li>
+          <li>Ansible, Docker/Kubernetes, dan storage/Git dapat ditempatkan pada VM terpisah agar eksperimen tidak saling mengganggu.</li>
+          <li>Tailscale dan SSH memungkinkan remote access yang tetap terkendali oleh firewall.</li>
+          <li>Troubleshooting hardware di awal mengingatkan bahwa lapisan fisik adalah fondasi lingkungan virtual.</li>
+          <li>Infrastruktur pembelajaran perlu disebut sesuai skalanya: lab dan eksperimen, bukan sistem operasional.</li>
+        </ul>
+        <h2>Kesimpulan</h2>
+        <p>Dari sekadar menginstal Proxmox dan satu VM Debian di bulan September, kini saya memiliki lingkungan dengan beberapa peran yang saling terhubung dan bisa diakses dari luar jaringan lokal. Perkembangan itu bukan hanya soal jumlah VM, tetapi soal cara saya merancang infrastruktur: mulai dari peran, konektivitas, dan kontrol akses, bukan dari layanan yang ingin dipasang.</p>
+        <p>Project ini juga menjadi tempat bertemunya tiga jalur pembelajaran saya selama ini: jaringan, server, dan keamanan akses. Semuanya terpakai dalam satu lingkungan yang masih akan terus berkembang, dan bagi saya itulah bentuk belajar yang paling menyenangkan: membangun sesuatu yang nyata, lalu memahami mengapa ia bekerja seperti itu.</p>
+      </div>
+      <div class="back-link">
+        <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+        <a class="text-link" href="../projects.html">Lihat semua project <span class="arrow">→</span></a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+        <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+        </nav>
+        <div><span class="small-label">Kontak</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="../js/posts.js?v=20261015-ios1"></script>
+  <script src="../js/script.js?v=20261015-ios1"></script>
+  <script src="../js/animations.js?v=20261015-ios1"></script>
+</body>
+</html>

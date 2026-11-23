@@ -194,7 +194,12 @@
     // ---------- Render home featured projects (3 pilihan) ----------
     var featWrap = document.getElementById("home-projects");
     if (featWrap && window.posts) {
-      var picks = ["vlan-dhcp", "proxmox-virtualization", "ioc-threat-intelligence"];
+      var picks = ["adaptive-dual-wan-failover", "devops-learning-server-infrastructure", "web-server-load-balancing"];
+      var homeDescriptions = {
+        "adaptive-dual-wan-failover": "Mengembangkan sistem Dual-WAN adaptif menggunakan PCC, Netwatch, RouterOS Scheduler, dan hysteresis untuk mengubah distribusi trafik 70:30 menjadi 100:0 atau 0:100 berdasarkan kondisi masing-masing ISP serta melakukan recovery otomatis ketika koneksi kembali stabil.",
+        "devops-learning-server-infrastructure": "Mengembangkan lingkungan server virtual untuk pembelajaran DevOps menggunakan Proxmox VE, MikroTik CHR, Ubuntu dan Debian VM untuk Ansible, Docker/Kubernetes, storage, SSH, routing, Tailscale, firewall, dan remote access.",
+        "web-server-load-balancing": "Membangun dan menguji web server load balancing dengan dua backend server serta membandingkan distribusi request melalui Round Robin, Least Connections, dan IP Hash menggunakan curl."
+      };
       var items = picks.map(function (id) { return window.posts.find(function (p) { return p.id === id; }); }).filter(Boolean);
       featWrap.innerHTML = items.map(function (p, i) {
         var rev = i % 2 === 1 ? " reverse" : "";
@@ -209,7 +214,7 @@
               '<div class="p-cat">' + p.category + "</div>" +
               "<h3>" + p.title + "</h3>" +
               '<div class="p-date">' + p.date + "</div>" +
-              "<p>" + p.description + "</p>" +
+              "<p>" + (homeDescriptions[p.id] || p.description) + "</p>" +
               '<div class="tags">' + p.tags.map(function (t) { return '<span class="tag">' + t + "</span>"; }).join("") + "</div>" +
               '<a class="text-link" href="' + p.link + '">Baca artikel <span class="arrow">→</span></a>' +
             "</div>" +

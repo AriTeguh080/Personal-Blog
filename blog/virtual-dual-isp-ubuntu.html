@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Dual ISP Lab with Ubuntu Router — Ari Teguh</title>
+  <meta name="description" content="Membangun dua Ubuntu Server sebagai router ISP virtual menggunakan Netplan, IP forwarding, dan iptables NAT masquerade untuk menyediakan dua jalur WAN menuju MikroTik CHR.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=20261015-ios1">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Jakarta — Indonesia</span></div>
+      <nav class="navbar" aria-label="Navigasi utama">
+        <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+          <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileNav">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobileNav" aria-hidden="true">
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main>
+    <article class="article-wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 11 — Virtual Dual ISP Ubuntu</nav>
+      <span class="article-cat">Networking / Linux</span>
+      <h1>Virtual Dual ISP Lab with Ubuntu Router</h1>
+      <div class="article-date">30 Oktober 2026 • Project 11 / 15</div>
+      <figure class="article-cover"><div class="img-frame"><img src="../images/projects/virtual_dual_isp_homelab_workspace.webp" alt="Virtual Dual ISP Lab with Ubuntu Router" loading="eager" decoding="async"></div>
+        <figcaption class="photo-caption">Fig. 11 — dua Ubuntu Server sebagai router ISP virtual.</figcaption>
+      </figure>
+      <div class="article-body">
+        <h2>Pendahuluan</h2>
+        <p>Lab Dual ISP sebelumnya meninggalkan satu pertanyaan praktis: dari mana saya mendapatkan dua jalur ISP untuk belajar? Berlangganan dua koneksi internet fisik jelas bukan pilihan yang masuk akal untuk sekadar lab. Jawaban yang saya pilih adalah membuat sendiri ISP-nya secara virtual. Di lab ini saya membangun dua Ubuntu Server yang berperan sebagai router ISP virtual, sehingga seluruh lingkungan Dual-WAN bisa berjalan sepenuhnya di dalam VirtualBox.</p>
+        <p>Penting untuk saya tegaskan sejak awal: kedua Ubuntu ini bukan ISP sungguhan. Mereka adalah simulasi, yaitu mesin Linux yang saya konfigurasikan untuk melakukan routing dan NAT layaknya sebuah ISP menyediakan jalur internet. Dengan begitu, saya tetap bisa menyebutnya ISP1 dan ISP2 dalam topologi, tetapi perilakunya sepenuhnya saya kendalikan.</p>
+        <p>Lab ini merupakan kelanjutan langsung dari Dual ISP failover sebelumnya, sekaligus pertemuan antara keterampilan Linux dan networking yang selama ini saya pelajari terpisah. Konfigurasi jaringan Linux yang dulu saya kenal sebatas alamat IP, di sini berkembang menjadi peran router yang sesungguhnya.</p>
+        <h2>Tujuan</h2>
+        <ul>
+          <li>Membangun dua router ISP virtual dari Ubuntu Server di dalam VirtualBox.</li>
+          <li>Membuat lingkungan Dual-WAN yang sepenuhnya virtual tanpa membutuhkan dua koneksi ISP fisik.</li>
+          <li>Mempraktikkan Netplan, IP forwarding, iptables NAT masquerade, dan routing di Linux.</li>
+          <li>Menyediakan WAN1 dan WAN2 bagi MikroTik CHR yang dapat dipakai ulang untuk lab-lab berikutnya.</li>
+        </ul>
+        <h2>Tools / Perangkat</h2>
+        <ul>
+          <li>VirtualBox sebagai platform virtualisasi.</li>
+          <li>Dua instance Ubuntu Server sebagai ISP1 dan ISP2 virtual.</li>
+          <li>Netplan untuk konfigurasi alamat IP antarmuka.</li>
+          <li>sysctl dan parameter net.ipv4.ip_forward untuk meneruskan paket antar antarmuka.</li>
+          <li>iptables dengan NAT masquerade.</li>
+          <li>MikroTik CHR sebagai router yang menggunakan kedua jalur.</li>
+        </ul>
+        <h2>Proses yang Dilakukan</h2>
+        <ol>
+          <li>Menyiapkan dua Ubuntu Server, masing-masing dengan antarmuka yang mewakili sisi ISP dan sisi yang menghadap ke MikroTik CHR.</li>
+          <li>Mengonfigurasi alamat IP statis pada setiap antarmuka melalui Netplan.</li>
+          <li>Mengaktifkan IP forwarding agar paket dapat transit antar antarmuka, dan membuatnya tetap aktif setelah reboot.</li>
+          <li>Membuat aturan iptables masquerade pada antarmuka keluar masing-masing ISP virtual.</li>
+          <li>Menyiapkan routing agar trafik dari MikroTik CHR dapat transit melalui setiap Ubuntu.</li>
+          <li>Menghubungkan kedua jalur tersebut sebagai WAN1 dan WAN2 di MikroTik CHR, lalu menguji konektivitas ujung ke ujung.</li>
+        </ol>
+        <p>Inti dari konfigurasi ini adalah membuat Ubuntu bersedia meneruskan paket yang bukan miliknya. Secara default, sistem operasi tidak meneruskan paket antar antarmuka; parameter net.ipv4.ip_forward harus diaktifkan, dan saya menyimpannya melalui sysctl agar tidak hilang setelah reboot. Setelah forwarding aktif, iptables masquerade memastikan trafik yang keluar dari antarmuka ISP memiliki alamat sumber yang benar, sehingga balasan bisa kembali. Dua langkah inilah yang mengubah Ubuntu biasa menjadi router yang berperilaku seperti jalur ISP.</p>
+        <p>Setelah kedua jalur terhubung ke MikroTik CHR, lingkungan ini langsung bisa dipakai untuk menguji failover seperti lab sebelumnya. Namun nilai jangka panjangnya lebih besar dari itu: karena ISP-nya adalah VM yang saya kendalikan, saya bisa memutus jalur, memulihkannya, atau bahkan menurunkan kualitasnya sesuka hati. Lingkungan inilah yang kemudian saya pakai untuk PCC, monitoring kualitas jaringan, simulasi gangguan dengan tc netem, hingga adaptive load balancing di lab-lab berikutnya.</p>
+        <h2>Kendala / Hal yang Diperhatikan</h2>
+        <p>Hal yang paling mudah terlewat adalah IP forwarding. Jika parameter ini belum aktif, Ubuntu akan membuang paket transit secara diam-diam, dan gejalanya terlihat seperti masalah routing di MikroTik padahal sumbernya ada di sisi Linux. Karena itu saya memeriksa forwarding terlebih dahulu sebelum menyalahkan konfigurasi routing. Masquerade juga harus berada di antarmuka yang tepat; aturan yang salah antarmuka membuat trafik keluar dengan alamat sumber yang tidak dapat dirutekan balik, sehingga koneksi terlihat putus meskipun routing sudah benar.</p>
+        <p>Hal lain yang perlu hati-hati adalah konfigurasi Netplan itu sendiri. Kesalahan penulisan atau penerapan konfigurasi bisa membuat VM kehilangan koneksi jaringan, termasuk koneksi yang saya pakai untuk mengelolanya. Karena itu saya menerapkan perubahan secara bertahap dan memverifikasi konektivitas setiap selesai satu tahap, bukan mengubah semuanya sekaligus lalu berharap yang terbaik.</p>
+        <h2>Hasil dan Pemahaman</h2>
+        <p>Hasil akhirnya adalah dua jalur ISP virtual yang independen: MikroTik CHR melihat WAN1 dan WAN2 sebagai dua jalur terpisah, dan trafik klien dapat keluar melalui salah satunya. Pengujian konektivitas ujung ke ujung berhasil, dan lingkungan ini terbukti dapat dipakai ulang untuk skenario failover tanpa perubahan berarti.</p>
+        <p>Yang lebih penting bagi saya adalah kendali penuh atas lingkungan ini. Saya bisa mensimulasikan gangguan kapan pun tanpa menyentuh koneksi fisik siapa pun. Dari lab ini saya memahami bahwa ISP dalam konteks jaringan pada dasarnya adalah peran routing dan NAT, bukan sesuatu yang misterius. Linux yang saya konfigurasi dengan forwarding dan masquerade dapat menjalankan peran itu dengan baik dalam skala lab, dan pemahaman ini membuat lab-lab networking berikutnya terasa jauh lebih mungkin untuk dikerjakan sendiri.</p>
+        <div class="callout">Membuat ISP virtual sendiri membantu saya memahami jalur routing dari bawah, bukan hanya mengandalkan koneksi yang sudah tersedia.</div>
+        <h2>Hal yang Dipelajari</h2>
+        <ul>
+          <li>Ubuntu Server dapat berperan sebagai router dengan mengaktifkan IP forwarding dan NAT masquerade.</li>
+          <li>Netplan adalah cara konfigurasi alamat IP yang perlu diterapkan dan diverifikasi dengan hati-hati.</li>
+          <li>IP forwarding yang tidak persisten akan hilang setelah reboot dan memutus fungsi router.</li>
+          <li>Lingkungan ISP virtual memberi kendali penuh untuk menguji failover, PCC, monitoring, dan simulasi gangguan.</li>
+          <li>Gejala jaringan yang terlihat di satu perangkat bisa berasal dari konfigurasi perangkat lain; verifikasi bertahap sangat membantu.</li>
+        </ul>
+        <h2>Kesimpulan</h2>
+        <p>Lab ini tidak menghasilkan fitur baru yang mencolok, tetapi ia membangun panggung tempat lab-lab berikutnya berdiri. Dengan dua ISP virtual yang sepenuhnya saya kendalikan, pembelajaran Dual-WAN tidak lagi bergantung pada keterbatasan koneksi fisik. Saya bisa bereksperimen dengan gangguan dan pemulihan secara aman dan berulang.</p>
+        <p>Bagi saya, ini juga pengingat bahwa keterampilan Linux dan networking saling menguatkan. Sedikit konfigurasi kernel dan firewall ternyata cukup untuk mengubah server biasa menjadi bagian penting dari topologi jaringan.</p>
+      </div>
+      <div class="back-link">
+        <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+        <a class="text-link" href="../projects.html">Lihat semua project <span class="arrow">→</span></a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+        <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+        </nav>
+        <div><span class="small-label">Kontak</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="../js/posts.js?v=20261015-ios1"></script>
+  <script src="../js/script.js?v=20261015-ios1"></script>
+  <script src="../js/animations.js?v=20261015-ios1"></script>
+</body>
+</html>

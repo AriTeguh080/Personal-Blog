@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Server Load Balancing Lab — Ari Teguh</title>
+  <meta name="description" content="Membangun dan menguji web server load balancing dengan dua backend server serta membandingkan distribusi request melalui Round Robin, Least Connections, dan IP Hash menggunakan curl.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=20261015-ios1">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Jakarta — Indonesia</span></div>
+      <nav class="navbar" aria-label="Navigasi utama">
+        <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+          <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileNav">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobileNav" aria-hidden="true">
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main>
+    <article class="article-wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 09 — Web Server Load Balancing</nav>
+      <span class="article-cat">Server / Networking</span>
+      <h1>Web Server Load Balancing Lab</h1>
+      <div class="article-date">23 Oktober 2026 • Project 09 / 15</div>
+      <figure class="article-cover"><div class="img-frame"><img src="../images/projects/web_server_load_balancing_lab.webp" alt="Web Server Load Balancing Lab" loading="eager" decoding="async"></div>
+        <figcaption class="photo-caption">Fig. 09 — Dua backend Server A dan Server B dengan pengujian menggunakan curl.</figcaption>
+      </figure>
+      <div class="article-body">
+        <h2>Pendahuluan</h2>
+        <p>Setelah beberapa lab sebelumnya berfokus pada jaringan dan server tunggal, kali ini saya ingin naik satu lapis: bagaimana sebuah layanan web bisa dilayani oleh lebih dari satu server. Di lab ini saya membangun satu load balancer dengan dua backend, yang saya sebut Server A dan Server B, lalu mengamati bagaimana request dibagikan di antara keduanya.</p>
+        <p>Alasan saya membuat lab ini cukup sederhana. Selama ini saya hanya mengenal satu server untuk satu layanan, dan saya penasaran bagaimana situs yang ramai tetap bisa diakses ketika salah satu servernya bermasalah. Jawabannya ternyata bukan sekadar menambah server, tetapi ada komponen di depan yang menentukan request mana pergi ke mana. Load balancer inilah yang ingin saya pahami secara langsung, bukan hanya dari teori.</p>
+        <p>Lab ini juga menjadi lanjutan yang masuk akal dari pembelajaran server dan virtualisasi sebelumnya. Karena sudah terbiasa menjalankan beberapa server virtual, saya bisa fokus pada sisi distribusi trafiknya tanpa perlu pusing lagi soal cara menyiapkan servernya. Seluruh pengujian saya lakukan dalam skala lab untuk belajar, bukan untuk kebutuhan operasional nyata.</p>
+        <h2>Tujuan</h2>
+        <ul>
+          <li>Memahami bagaimana load balancer mendistribusikan request ke dua backend server.</li>
+          <li>Membandingkan perilaku metode Round Robin, Least Connections, dan IP Hash melalui pengujian langsung.</li>
+          <li>Mengenal session persistence dan hubungannya dengan metode distribusi yang dipilih.</li>
+          <li>Mengamati perilaku sistem ketika salah satu backend tidak tersedia, serta berlatih troubleshooting backend.</li>
+        </ul>
+        <h2>Tools / Perangkat</h2>
+        <ul>
+          <li>Satu load balancer dan dua backend server (Server A dan Server B).</li>
+          <li>HTTP sebagai protokol yang diuji.</li>
+          <li>curl untuk mengirim request berulang ke load balancer.</li>
+          <li>Identitas backend pada response, untuk melihat server mana yang menangani request.</li>
+          <li>Pengecekan status server dan log request saat troubleshooting.</li>
+        </ul>
+        <h2>Proses yang Dilakukan</h2>
+        <ol>
+          <li>Menyiapkan Server A dan Server B agar masing-masing dapat melayani request HTTP dan bisa dibedakan dari response-nya.</li>
+          <li>Menempatkan load balancer di depan kedua backend, sehingga request diarahkan ke satu alamat load balancer.</li>
+          <li>Mengirim request berulang menggunakan curl dan mencatat backend mana yang merespons.</li>
+          <li>Menguji metode Round Robin, lalu mengamati pola giliran antar backend.</li>
+          <li>Beralih ke Least Connections dan mengamati pengaruh jumlah koneksi aktif terhadap distribusi.</li>
+          <li>Menguji IP Hash dan mengamati konsistensi backend untuk klien yang sama.</li>
+          <li>Mematikan salah satu backend, lalu mengamati apakah load balancer tetap melayani request melalui backend yang tersisa.</li>
+        </ol>
+        <p>Bagian yang paling banyak menyita waktu justru pengujian dengan curl. Setiap request saya kirim ke alamat load balancer, lalu saya lihat identitas backend pada response-nya. Dari puluhan request berturut-turut, pola distribusi mulai terlihat: pada Round Robin, response bergantian antara Server A dan Server B secara teratur. Saya mengulang pengujian yang sama setelah metode diganti, supaya perbedaannya benar-benar berasal dari metode, bukan dari kebetulan.</p>
+        <p>Perbedaan antar metode menjadi lebih jelas ketika saya bandingkan catatannya. Round Robin membagi secara bergiliran tanpa peduli beban. Least Connections memilih backend dengan koneksi aktif paling sedikit, sehingga distribusinya bisa terlihat tidak merata ketika jumlah koneksi tiap server berbeda. IP Hash berperilaku lain lagi: klien dengan alamat IP yang sama terus diarahkan ke backend yang sama. Di sinilah saya pertama kali melihat session persistence bekerja secara nyata, bukan sebagai istilah di dokumentasi.</p>
+        <p>Pengujian terakhir adalah mematikan salah satu backend. Saya ingin memastikan bahwa request tetap dilayani, dan bahwa load balancer benar-benar berhenti mengirim request ke backend yang mati. Verifikasi saya lakukan dengan melihat response yang masuk dan mengecek status server secara manual, bukan dengan berasumsi trafiknya otomatis pindah.</p>
+        <h2>Kendala / Hal yang Diperhatikan</h2>
+        <p>Hal pertama yang perlu diperhatikan adalah jumlah request saat pengujian. Dengan hanya beberapa request, pola distribusi belum tentu terlihat, dan saya bisa salah menyimpulkan bahwa suatu metode tidak bekerja. Selain itu, karena curl saya jalankan dari alamat IP yang sama, pengujian IP Hash selalu menghasilkan backend yang sama. Sekilas ini terlihat seperti load balancer tidak membagi trafik, padahal justru itulah perilaku yang diharapkan dari IP Hash. Membedakan konfigurasi yang salah dari metode yang memang bekerja seperti itu ternyata butuh catatan pengujian yang rapi.</p>
+        <p>Hal kedua adalah ketersediaan backend. Ketika salah satu server dimatikan, saya perlu memeriksa apakah load balancer mendeteksinya dan berhenti mengarahkan request ke sana. Pengecekan log request dan status server menjadi penting, karena kegagalan backend tidak selalu terlihat dari sisi klien selama backend lain masih merespons. Dari sini saya belajar bahwa troubleshooting load balancing bukan hanya soal konfigurasi load balancer, tetapi juga soal memastikan kondisi tiap backend secara terpisah.</p>
+        <h2>Hasil dan Pemahaman</h2>
+        <p>Dari pengujian yang saya lakukan, ketiga metode menunjukkan perilaku yang berbeda sesuai konsepnya. Round Robin menghasilkan giliran yang teratur antara Server A dan Server B. Least Connections membuat distribusi mengikuti jumlah koneksi aktif, sehingga tidak selalu bergantian secara kaku. IP Hash menjaga klien yang sama tetap berada di backend yang sama, yang saya pahami sebagai bentuk session persistence.</p>
+        <p>Ketika salah satu backend dimatikan, request tetap dapat dilayani oleh backend yang masih aktif, selama load balancer tidak lagi mengarahkan request ke backend yang mati. Pengujian ini berhasil menunjukkan perilaku dasar yang saya harapkan, meskipun saya menyadarinya hanya pada skala lab dengan dua backend dan pengujian curl sederhana.</p>
+        <p>Pemahaman terbesar yang saya dapat: metode distribusi menentukan karakter sistem. Tidak ada metode yang selalu paling benar; Round Robin cocok untuk beban yang mirip, Least Connections mempertimbangkan kondisi koneksi, dan IP Hash menjaga sesi tetap konsisten. Saya juga memahami bahwa load balancer hanya sebagus informasi yang dimilikinya tentang backend, sehingga pengecekan ketersediaan backend adalah bagian dari desain, bukan tambahan.</p>
+        <div class="callout">Load balancing bukan hanya soal membagi request, tetapi memahami bagaimana setiap koneksi diarahkan dan bagaimana sistem bereaksi ketika backend berubah.</div>
+        <h2>Hal yang Dipelajari</h2>
+        <ul>
+          <li>Load balancer berada di antara klien dan backend, dan memutuskan ke mana setiap request diarahkan.</li>
+          <li>Round Robin, Least Connections, dan IP Hash memiliki dasar keputusan yang berbeda: giliran, beban koneksi, dan identitas klien.</li>
+          <li>Session persistence berkaitan erat dengan pilihan metode distribusi.</li>
+          <li>Ketersediaan backend perlu diverifikasi, bukan diasumsikan, terutama saat salah satu backend mati.</li>
+          <li>curl dan identitas backend pada response adalah cara sederhana namun efektif untuk menguji distribusi request.</li>
+        </ul>
+        <h2>Kesimpulan</h2>
+        <p>Lab ini adalah langkah pertama saya dari mindset satu server menuju beberapa server yang bekerja bersama. Saya tidak hanya mempelajari cara memasang load balancer, tetapi juga cara menguji dan membaca perilakunya. Pengujian kecil dengan curl ternyata cukup untuk membuat perbedaan antar metode terlihat jelas, asalkan dilakukan dengan sabar dan dicatat.</p>
+        <p>Pengalaman ini juga menyiapkan saya untuk pembelajaran berikutnya tentang pembagian trafik di lapisan jaringan. Jika di sini yang dibagi adalah request HTTP, di lab berikutnya saya mulai mempelajari bagaimana koneksi jaringan itu sendiri yang dibagi antar jalur internet.</p>
+      </div>
+      <div class="back-link">
+        <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+        <a class="text-link" href="../projects.html">Lihat semua project <span class="arrow">→</span></a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+        <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+        </nav>
+        <div><span class="small-label">Kontak</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="../js/posts.js?v=20261015-ios1"></script>
+  <script src="../js/script.js?v=20261015-ios1"></script>
+  <script src="../js/animations.js?v=20261015-ios1"></script>
+</body>
+</html>

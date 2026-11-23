@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISP Quality Monitoring & Network Impairment Simulation — Ari Teguh</title>
+  <meta name="description" content="Melakukan monitoring kualitas dua jalur ISP serta mensimulasikan latency dan packet loss menggunakan Linux tc netem untuk mengevaluasi perubahan kualitas koneksi.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=20261015-ios1">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Jakarta — Indonesia</span></div>
+      <nav class="navbar" aria-label="Navigasi utama">
+        <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+          <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileNav">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobileNav" aria-hidden="true">
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main>
+    <article class="article-wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 13 — ISP Quality</nav>
+      <span class="article-cat">Network Monitoring / Networking</span>
+      <h1>ISP Quality Monitoring & Network Impairment Simulation</h1>
+      <div class="article-date">2 November 2026 • Project 13 / 15</div>
+      <figure class="article-cover"><div class="img-frame"><img src="../images/projects/isp_quality_monitoring_lab.webp" alt="ISP Quality Monitoring & Network Impairment Simulation" loading="eager" decoding="async"></div>
+        <figcaption class="photo-caption">Fig. 13 — Monitoring kualitas dua jalur ISP dengan Netwatch dan tc netem.</figcaption>
+      </figure>
+      <div class="article-body">
+        <h2>Pendahuluan</h2>
+        <p>Sampai lab sebelumnya, cara saya memandang jalur ISP masih sangat biner: jalurnya UP atau DOWN. Gateway monitoring menjawab pertanyaan itu dengan ping, dan failover bekerja berdasarkan jawabannya. Namun semakin dipikir, ada kondisi yang belum terwakili oleh cara pandang ini: bagaimana jika jalur tetap aktif, tetapi kualitasnya sebenarnya buruk? Koneksi yang lambat dan sering kehilangan paket tetap bisa menjawab ping sesekali, sehingga sistem menganggapnya sehat.</p>
+        <p>Lab ini saya buat untuk mempelajari sisi itu. Saya mulai melihat kualitas jalur, bukan hanya ketersediaannya, dengan mengenal metrik seperti RTT, latency, jitter, dan packet loss. Untuk mengujinya secara terkendali, saya menggunakan kembali ISP virtual Ubuntu dari lab sebelumnya dan menyuntikkan gangguan dengan Linux Traffic Control, khususnya tc netem. Karena ISP-nya adalah VM yang saya kendalikan, saya bisa membuat jalur menjadi lambat atau lossy kapan pun saya mau, lalu mengamati bagaimana monitoring merespons.</p>
+        <p>Pemahaman dari lab ini menjadi dasar bagi ide adaptive load balancing yang saya kembangkan kemudian: keputusan distribusi trafik seharusnya mempertimbangkan kondisi WAN, bukan hanya status hidup atau matinya.</p>
+        <h2>Tujuan</h2>
+        <ul>
+          <li>Memahami metrik kualitas jalur: RTT atau latency, jitter, dan packet loss.</li>
+          <li>Menggunakan MikroTik Netwatch untuk memantau jalur melalui ping dan membaca hasilnya.</li>
+          <li>Mensimulasikan delay dan packet loss secara terkendali menggunakan tc netem di ISP virtual.</li>
+          <li>Mengamati bahwa koneksi dapat tetap aktif meskipun kualitasnya buruk.</li>
+        </ul>
+        <h2>Tools / Perangkat</h2>
+        <ul>
+          <li>MikroTik Netwatch untuk monitoring jalur.</li>
+          <li>ping dan nilai RTT sebagai dasar pengamatan.</li>
+          <li>Ubuntu ISP virtual dari lab sebelumnya sebagai tempat gangguan disuntikkan.</li>
+          <li>Linux Traffic Control (tc) dengan qdisc netem.</li>
+          <li>Parameter delay dan packet loss pada netem.</li>
+        </ul>
+        <h2>Proses yang Dilakukan</h2>
+        <ol>
+          <li>Menyiapkan Netwatch untuk memantau jalur melalui ping ke target yang relevan.</li>
+          <li>Mencatat kondisi dasar jaringan: nilai RTT ketika tidak ada gangguan.</li>
+          <li>Menambahkan delay pada antarmuka ISP virtual menggunakan tc netem, misalnya delay 50ms dengan variasi 10ms.</li>
+          <li>Mengamati kenaikan RTT dan variasi antar respons sebagai bentuk jitter.</li>
+          <li>Menambahkan packet loss, misalnya loss 20%, dan mengamati respons yang hilang.</li>
+          <li>Membandingkan hasil monitoring dengan kondisi gangguan yang saya suntikkan, lalu menghapus gangguan dan memeriksa kembali kondisi normal.</li>
+        </ol>
+        <p>Metrik-metrik yang saya pelajari sebenarnya saling berkaitan. RTT atau latency adalah waktu tempuh bolak-balik sebuah paket; jitter adalah variasi nilai itu antar waktu; packet loss adalah porsi paket yang tidak pernah kembali. Dengan menyalakan netem delay, saya bisa melihat RTT naik sesuai nilai yang saya pasang, dan variasi delay membuat angka RTT tidak stabil dari satu ping ke ping berikutnya. Dengan netem loss, sebagian respons hilang, dan pada tingkat tertentu jalur mulai terlihat tidak dapat diandalkan meskipun antarmukanya tetap aktif.</p>
+        <p>Bagian yang paling membuka pikiran saya adalah ketika packet loss tidak seratus persen. Dengan loss sebagian, masih ada ping yang berhasil dijawab, sehingga Netwatch dapat tetap melihat jalur sebagai hidup. Padahal dari sisi pengalaman pengguna, koneksi yang kehilangan satu dari lima paket jelas bukan koneksi yang sehat. Di titik ini saya memahami kelemahan mendasar dari monitoring yang hanya bertanya hidup atau mati: beberapa keberhasilan dapat menutupi kualitas yang buruk.</p>
+        <p>Karena gangguan disuntikkan pada ISP virtual, seluruh pengujian bisa saya ulang dengan rapi: pasang gangguan, amati, hapus gangguan, amati lagi. Pola ini membuat saya bisa membandingkan perilaku monitoring pada berbagai tingkat gangguan tanpa menyentuh jaringan fisik mana pun.</p>
+        <h2>Kendala / Hal yang Diperhatikan</h2>
+        <p>Hal teknis pertama adalah penempatan netem. Aturan traffic control berlaku pada antarmuka dan arah tertentu, sehingga gangguan harus dipasang di tempat yang benar agar memengaruhi jalur yang dimaksud. Jika qdisc dipasang di antarmuka yang salah, pengujian bisa terlihat tidak berpengaruh dan saya mungkin salah menyimpulkan bahwa monitoring tidak mendeteksi apa-apa. Setelah pengujian selesai, qdisc juga harus dihapus dengan bersih; sisa aturan yang tertinggal dapat membuat pengujian berikutnya bias tanpa saya sadari.</p>
+        <p>Hal kedua adalah batas dari monitoring berbasis ping itu sendiri. Interval dan timeout menentukan seberapa cepat perubahan kondisi terlihat, dan satu hasil ping yang berhasil tidak berarti jalur sehat. Untuk menilai kualitas dengan lebih masuk akal, hasil monitoring perlu dilihat sebagai kumpulan pengamatan dari waktu ke waktu, bukan sebagai satu jawaban sesaat. Catatan ini nantinya mendorong saya menggunakan counter dan state pada pengembangan adaptive load balancing, bukan bereaksi terhadap satu hasil monitoring saja.</p>
+        <h2>Hasil dan Pemahaman</h2>
+        <p>Pengujian menunjukkan bahwa delay yang disuntikkan terlihat sebagai kenaikan RTT, variasi delay terlihat sebagai jitter, dan packet loss terlihat sebagai respons yang hilang. Ketika loss dipasang sebagian, jalur masih dapat menjawab beberapa ping sehingga tetap dapat dianggap aktif, padahal kualitasnya sudah menurun. Skenario inilah yang ingin saya demonstrasikan, dan hasilnya sesuai dengan dugaan awal saya.</p>
+        <p>Dari sini saya memahami bahwa aktif dan sehat adalah dua hal yang berbeda. Sistem yang hanya memantau keterjangkauan akan melewatkan kondisi jalur yang aktif tetapi buruk, dan keputusan distribusi trafik yang dibuat berdasarkan status itu bisa tetap mengarahkan koneksi ke jalur yang bermasalah. Pemahaman ini menjadi dasar langsung bagi ide adaptive load balancing berdasarkan kondisi WAN yang saya kerjakan di lab berikutnya.</p>
+        <p>Saya juga mencatat bahwa yang saya lakukan di sini adalah pengamatan skala lab dengan metrik dasar, bukan sistem monitoring skala besar. Nilainya bagi saya ada pada perubahan cara pandang: dari pertanyaan apakah jalurnya hidup, menjadi pertanyaan seberapa baik jalurnya saat ini.</p>
+        <div class="callout">Koneksi yang masih aktif belum tentu sehat — kualitas jalur tetap perlu dilihat dari latency, jitter, dan packet loss.</div>
+        <h2>Hal yang Dipelajari</h2>
+        <ul>
+          <li>RTT, jitter, dan packet loss menggambarkan kualitas jalur dari sisi yang berbeda.</li>
+          <li>tc netem memungkinkan gangguan delay dan loss disuntikkan secara terkendali pada lingkungan virtual.</li>
+          <li>Jalur yang aktif belum tentu sehat; loss sebagian dapat tertutupi oleh ping yang sesekali berhasil.</li>
+          <li>Penempatan dan pembersihan aturan netem menentukan validitas pengujian.</li>
+          <li>Hasil monitoring perlu dibaca sebagai rangkaian pengamatan, bukan satu hasil sesaat.</li>
+        </ul>
+        <h2>Kesimpulan</h2>
+        <p>Lab ini menggeser pertanyaan utama saya dari apakah jalurnya hidup menjadi seberapa baik jalurnya. Pergeseran itu terdengar sederhana, tetapi dampaknya besar: banyak keputusan jaringan yang saya pelajari sebelumnya ternyata masih dibangun di atas jawaban biner yang belum tentu cukup.</p>
+        <p>Dengan gangguan yang bisa saya suntik dan amati sendiri, saya kini punya cara untuk menguji ide yang lebih adaptif. Langkah berikutnya adalah membuat konfigurasi jaringan benar-benar merespons kondisi yang terukur itu.</p>
+      </div>
+      <div class="back-link">
+        <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+        <a class="text-link" href="../projects.html">Lihat semua project <span class="arrow">→</span></a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+        <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+        </nav>
+        <div><span class="small-label">Kontak</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="../js/posts.js?v=20261015-ios1"></script>
+  <script src="../js/script.js?v=20261015-ios1"></script>
+  <script src="../js/animations.js?v=20261015-ios1"></script>
+</body>
+</html>

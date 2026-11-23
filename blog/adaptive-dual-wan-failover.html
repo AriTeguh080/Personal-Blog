@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaptive Dual-WAN Load Balancing & Failover on MikroTik CHR — Ari Teguh</title>
+  <meta name="description" content="Mengembangkan sistem Dual-WAN adaptif menggunakan PCC, Netwatch, RouterOS Scheduler, dan hysteresis untuk mengubah distribusi trafik 70:30 menjadi 100:0 atau 0:100 berdasarkan kondisi masing-masing ISP serta melakukan recovery otomatis ketika koneksi kembali stabil. Hands‑on lab pada lingkungan VirtualBox.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=20261015-ios1">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Jakarta — Indonesia</span></div>
+      <nav class="navbar" aria-label="Navigasi utama">
+        <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../projects.html">Projects</a></right></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+          <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileNav">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobileNav" aria-hidden="true">
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main>
+    <article class="article-wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 14 — Adaptive Dual-WAN</nav>
+      <span class="article-cat">Networking / Network Infrastructure</span>
+      <h1>Adaptive Dual-WAN Load Balancing & Failover on MikroTik CHR</h1>
+      <div class="article-date">11 November 2026 • Project 14 / 15</div>
+      <figure class="article-cover"><div class="img-frame"><img src="../images/projects/adaptive_dual_wan_lab_workspace.webp" alt="Adaptive Dual-WAN Load Balancing & Failover on MikroTik CHR" loading="eager" decoding="async"></div>
+        <figcaption class="photo-caption">Fig. 14 — Sistem Dual-WAN adaptif dengan PCC dan hysteresis.</figcaption>
+      </figure>
+      <div class="article-body">
+        <h2>Pendahuluan</h2>
+        <p>Lab ini adalah kelanjutan langsung dari weighted PCC 70:30 yang sudah saya bangun sebelumnya. Waktu itu distribusi koneksi baru sudah terbagi tujuh puluh persen ke WAN1 dan tiga puluh persen ke WAN2, tetapi bobotnya statis. Jika WAN2 mengalami gangguan, tiga puluh persen koneksi baru tetap diarahkan ke sana, karena tidak ada bagian dari sistem yang tahu bahwa jalur itu sedang bermasalah. Di sisi lain, lab monitoring kualitas sudah menunjukkan kepada saya bahwa jalur bisa tetap aktif sambil mengalami latency tinggi atau packet loss. Dua pemahaman itu bertemu menjadi satu ide: membuat distribusi PCC berubah mengikuti kondisi WAN.</p>
+        <p>Pengembangan saya lakukan dalam dua tahap yang saya sebut LAB 7.5 dan LAB 7.6, dan keduanya adalah satu project yang berkelanjutan, bukan dua lab terpisah. LAB 7.5 memfokuskan mekanisme adaptif pada WAN2 terlebih dahulu, supaya logikanya bisa diuji pada satu jalur sebelum diperluas. LAB 7.6 kemudian melengkapi sisi WAN1 dan menyatukan kendali PCC untuk kedua arah. Seluruh lingkungan tetap sama: MikroTik CHR di VirtualBox, Ubuntu Server sebagai ISP virtual, RouterOS dengan PCC, Netwatch, Scheduler, Firewall Mangle, dan tc netem untuk menyuntikkan gangguan.</p>
+        <p>Saya menekankan sejak awal bahwa ini adalah hands-on adaptive networking lab yang sengaja dibatasi untuk pembelajaran. Tujuannya adalah memahami bagaimana monitoring, state, dan perubahan konfigurasi dapat dirangkai menjadi sistem yang merespons kondisi jaringan, dengan segala keterbatasan yang masih perlu dipelajari.</p>
+        <h2>Tujuan</h2>
+        <ul>
+          <li>Membuat distribusi PCC berubah otomatis mengikuti kondisi kualitas masing-masing WAN.</li>
+          <li>Menerapkan Bad Counter, Good Counter, dan WAN State dengan hysteresis tiga pemeriksaan berturut-turut.</li>
+          <li>Memperluas monitoring dari WAN2 ke WAN1 tanpa merusak konfigurasi yang sudah berjalan.</li>
+          <li>Membangun satu pengendali PCC dua arah yang membaca state kedua WAN.</li>
+          <li>Menguji perilaku sistem dengan gangguan tc netem dan memverifikasi pemulihannya.</li>
+        </ul>
+        <h2>Tools / Perangkat</h2>
+        <ul>
+          <li>MikroTik CHR dengan RouterOS di VirtualBox.</li>
+          <li>PCC dan Firewall Mangle untuk connection marking.</li>
+          <li>Netwatch sebagai pemantau jalur.</li>
+          <li>RouterOS Scheduler untuk menjalankan logika secara berkala.</li>
+          <li>Bad Counter, Good Counter, dan WAN State sebagai variabel kondisi.</li>
+          <li>Ubuntu ISP virtual dan tc netem untuk simulasi gangguan.</li>
+        </ul>
+        <h2>Proses yang Dilakukan</h2>
+        <ol>
+          <li>Berangkat dari konfigurasi weighted PCC 70:30 yang sudah berjalan.</li>
+          <li>LAB 7.5: memasang Netwatch untuk WAN2 dan membangun Bad Counter serta Good Counter.</li>
+          <li>LAB 7.5: membuat WAN2 State berubah menjadi degraded setelah tiga pemeriksaan DOWN berturut-turut, lalu mengubah PCC dari 70:30 menjadi 100:0.</li>
+          <li>LAB 7.5: memulihkan WAN2 State menjadi normal setelah tiga pemeriksaan UP berturut-turut, dan mengembalikan PCC ke 70:30.</li>
+          <li>LAB 7.6: mengaudit routing table, routing rule, dan Scheduler yang sudah ada sebelum menambah konfigurasi baru.</li>
+          <li>LAB 7.6: membangun monitoring WAN1 dengan Netwatch dan Scheduler LAB76-WAN1-MON, memakai logika counter dan state yang sama.</li>
+          <li>LAB 7.6: membuat Scheduler LAB76-PCC-DUAL yang membaca WAN1 State dan WAN2 State untuk menentukan konfigurasi PCC, serta menonaktifkan pengendali PCC sebelumnya agar tidak terjadi konflik.</li>
+        </ol>
+        <h3>LAB 7.5 — Adaptive untuk WAN2</h3>
+        <p>Tahap pertama saya fokuskan pada WAN2. Netwatch memantau jalur tersebut, dan setiap hasil pemeriksaan menggerakkan dua counter: Bad Counter bertambah ketika pemeriksaan DOWN, Good Counter bertambah ketika pemeriksaan UP. WAN2 State tidak langsung berubah hanya karena satu hasil buruk; state baru berubah menjadi degraded setelah tiga pemeriksaan DOWN berturut-turut. Ketika state itu tercapai, konfigurasi PCC diubah dari 70:30 menjadi 100:0, sehingga koneksi baru tidak lagi diarahkan ke WAN2.</p>
+        <p>Pemulihan bekerja dengan arah yang berlawanan. Setelah gangguan dihapus, Good Counter mulai meningkat, dan setelah tiga pemeriksaan UP berturut-turut, WAN2 State kembali menjadi normal dan PCC dikembalikan ke 70:30. Aturan tiga pemeriksaan berturut-turut ini saya gunakan sebagai hysteresis: konfigurasi tidak boleh langsung berubah akibat satu hasil monitoring sesaat, karena jaringan nyata bisa berfluktuasi dan perubahan yang terlalu reaktif justru membuat sistem tidak stabil.</p>
+        <h3>LAB 7.6 — Audit dan Perluasan ke WAN1</h3>
+        <p>Sebelum menambah mekanisme untuk WAN1, saya melakukan audit terlebih dahulu terhadap routing table, routing rule, dan Scheduler MikroTik yang sudah ada. Tujuannya memastikan konfigurasi LAB 7.5 tetap berjalan seperti yang diharapkan, sehingga jika nanti ada perilaku aneh, saya tahu apakah itu berasal dari konfigurasi lama atau dari tambahan baru. Kebiasaan audit ini ternyata sangat membantu ketika troubleshooting.</p>
+        <p>Monitoring WAN1 kemudian dibangun dengan Netwatch dan Scheduler bernama LAB76-WAN1-MON. Komponennya sama dengan sisi WAN2: Bad Counter, Good Counter, dan WAN1 State. WAN1 dianggap mengalami gangguan setelah tiga pemeriksaan DOWN berturut-turut, dan dianggap pulih setelah tiga pemeriksaan UP berturut-turut. Dengan menyamakan logika di kedua sisi, perilaku sistem menjadi lebih mudah diprediksi dan diuji.</p>
+        <h3>Pengendali PCC Dua Arah — LAB76-PCC-DUAL</h3>
+        <p>Setelah kedua jalur memiliki state masing-masing, saya membuat Scheduler LAB76-PCC-DUAL sebagai satu pengendali yang membaca WAN1 State dan WAN2 State, lalu menentukan konfigurasi PCC. Ketika kedua WAN normal, PCC berada pada 70:30. Ketika WAN2 degraded, PCC menjadi 100:0. Ketika WAN1 degraded, PCC menjadi 0:100, sehingga koneksi baru diarahkan melalui WAN2.</p>
+        <p>Satu hal penting dalam tahap ini adalah menonaktifkan pengendali PCC sebelumnya. Jika dua skrip sama-sama mengubah aturan Firewall Mangle, keduanya bisa saling menimpa dan hasil akhirnya tidak dapat diprediksi. Dengan satu pengendali yang membaca kedua state, keputusan perubahan bobot menjadi terpusat dan lebih mudah ditelusuri.</p>
+        <h2>Kendala / Hal yang Diperhatikan</h2>
+        <p>Kendala nyata yang saya hadapi selama pengembangan ada pada beberapa titik. Pertama, Scheduler dan pembacaan WAN State: skrip yang dijalankan Scheduler harus membaca nilai state dengan benar, dan penempatan serta urutan eksekusi perlu diperiksa agar state yang dibaca adalah state yang terbaru. Kedua, verifikasi perubahan connection mark di Firewall Mangle: konfigurasi yang terlihat sudah berubah belum tentu tercermin pada mark koneksi baru, sehingga saya perlu memeriksa connection mark secara langsung, bukan hanya membaca aturan yang tertulis. Ketiga, syntax RouterOS: kesalahan kecil pada skrip dapat membuat seluruh logika tidak berjalan, dan gejalanya sering kali tidak langsung menunjuk ke penyebabnya.</p>
+        <p>Troubleshooting saya lakukan melalui audit konfigurasi, pemeriksaan syntax, pengujian bertahap, dan verifikasi connection mark. Pengujian bertahap sangat membantu: saya mengubah satu bagian, mengujinya, baru melanjutkan ke bagian berikutnya, sehingga ketika ada perilaku yang salah, lingkup penyebabnya lebih sempit. Audit konfigurasi di awal LAB 7.6 juga terbukti berguna untuk memastikan fondasi lama tidak ikut berubah tanpa sengaja.</p>
+        <p>Catatan teknis yang penting untuk saya jujuri adalah soal connection tracking. Perubahan PCC terutama mengatur klasifikasi koneksi baru. Koneksi lama yang sudah tercatat di connection tracking adalah hal lain yang perlu diperhatikan ketika jalur ISP mengalami gangguan, dan saya belum menguji bagian itu sepenuhnya. Karena itu saya tidak mengklaim project ini sudah menyelesaikan seluruh masalah koneksi yang sedang berjalan; yang teruji adalah perilaku klasifikasi koneksi baru terhadap perubahan state.</p>
+        <h2>Hasil dan Pemahaman</h2>
+        <h3>Pengujian WAN2</h3>
+        <p>Gangguan saya suntikkan pada ISP2 menggunakan tc netem dengan packet loss 100%. Netwatch mendeteksi gangguan tersebut, Bad Counter meningkat, dan setelah tiga siklus pemeriksaan DOWN berturut-turut, WAN2 State berubah menjadi degraded. Konfigurasi PCC kemudian berubah dari 70:30 menjadi 100:0, sehingga koneksi baru tidak lagi diarahkan ke WAN2. Setelah gangguan dihapus, Good Counter meningkat, dan setelah tiga siklus UP berturut-turut, WAN2 State kembali normal dan PCC kembali ke 70:30. Seluruh rangkaian ini berjalan sesuai rancangan.</p>
+        <h3>Pengujian WAN1</h3>
+        <p>Untuk sisi WAN1, WAN1 State diuji dalam kondisi degraded. Scheduler LAB76-PCC-DUAL berhasil menyesuaikan konfigurasi PCC berdasarkan state tersebut, dan connection mark baru diarahkan menuju WAN2_conn. Distribusi menjadi 0:100, yang berarti koneksi baru diarahkan melalui WAN2. Pengujian ini melengkapi sisi yang belum tercakup pada LAB 7.5, sehingga kedua arah perubahan bobot telah saya verifikasi.</p>
+        <p>Dari kedua pengujian itu saya memahami pola dasar sistem yang saya bangun: Netwatch menyediakan pengamatan, counter dan state menyediakan keputusan yang tidak reaktif, dan Scheduler bersama Firewall Mangle menyediakan eksekusi. Hysteresis tiga pemeriksaan membuat sistem merespons kondisi yang bertahan, bukan fluktuasi sesaat. Saya juga memahami batasnya: yang teruji adalah klasifikasi koneksi baru, sementara perilaku koneksi lama saat jalur terganggu masih menjadi pertanyaan terbuka yang perlu diuji lebih lanjut. Sistem ini adalah lab adaptif yang terus berkembang, bukan sistem operasional yang sudah selesai.</p>
+        <div class="callout">Sistem adaptif mulai terasa nyata ketika status WAN tidak hanya dipantau, tetapi benar-benar digunakan untuk mengubah perilaku routing secara otomatis.</div>
+        <h2>Hal yang Dipelajari</h2>
+        <ul>
+          <li>Konfigurasi statis dapat dikembangkan menjadi adaptif dengan menggabungkan monitoring, state, dan Scheduler.</li>
+          <li>Hysteresis tiga pemeriksaan berturut-turut mencegah konfigurasi berubah akibat satu hasil monitoring sesaat.</li>
+          <li>Memisahkan pengamatan, keputusan, dan eksekusi membuat sistem lebih mudah diuji dan ditroubleshoot.</li>
+          <li>Satu pengendali PCC untuk kedua WAN menghindari konflik perubahan Firewall Mangle; pengendali lama harus dinonaktifkan.</li>
+          <li>Verifikasi connection mark secara langsung lebih dapat dipercaya daripada sekadar membaca aturan yang tertulis.</li>
+          <li>Perubahan PCC memengaruhi koneksi baru; connection tracking koneksi lama adalah persoalan terpisah yang belum selesai diuji.</li>
+        </ul>
+        <h2>Kesimpulan</h2>
+        <p>Project ini menyatukan hampir seluruh jalur pembelajaran networking saya sejauh ini: failover yang mengenali jalur hidup dan mati, weighted PCC yang membagi koneksi dengan bobot, dan monitoring yang membedakan jalur aktif dari jalur sehat. Ketiganya bertemu di sini menjadi sistem yang mengubah distribusinya sendiri berdasarkan kondisi yang terukur. Proses dari LAB 7.5 ke LAB 7.6 mengajarkan saya bahwa pengembangan fitur baru sebaiknya dimulai dari audit fondasi lama, diuji satu sisi terlebih dahulu, baru diperluas.</p>
+        <p>Masih ada bagian yang belum selesai, terutama soal koneksi lama saat jalur terganggu, dan saya mencatatnya sebagai pekerjaan berikutnya, bukan menutupinya. Namun untuk pertama kalinya saya memiliki sistem jaringan yang tidak hanya menjalankan konfigurasi, tetapi juga merespons kondisi. Bagi saya, itu perubahan cara berpikir yang lebih berharga daripada sekadar berhasilnya pengujian.</p>
+      </div>
+      <div class="back-link">
+        <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+        <a class="text-link" href="../projects.html">Lihat semua project <span class="arrow">→</span></a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+        <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+        </nav>
+        <div><span class="small-label">Kontak</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="../js/posts.js?v=20261015-ios1"></script>
+  <script src="../js/script.js?v=20261015-ios1"></script>
+  <script src="../js/animations.js?v=20261015-ios1"></script>
+</body>
+</html>

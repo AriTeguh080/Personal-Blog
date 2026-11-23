@@ -1,5 +1,5 @@
 /* posts.js — sumber data tunggal untuk Blog & Home latest articles.
-   Urutan: TERLAMA -> TERBARU (01 -> 07). Jangan diubah urutannya. */
+   Urutan: TERLAMA -> TERBARU (01 -> 15). Jangan diubah urutannya. */
 const posts = [
   {
     id: "company-network-architecture",
@@ -88,6 +88,83 @@ const posts = [
     description: "Mempelajari VPN modern menggunakan WireGuard dan Tailscale serta konsep Zero Trust untuk memahami akses jaringan yang lebih terkontrol.",
     link: "blog/wireguard-tailscale-zero-trust.html",
     tags: ["WireGuard", "Tailscale", "Zero Trust", "VPN"]
+  },
+  {
+    id: "web-server-load-balancing",
+    num: "09",
+    title: "Web Server Load Balancing Lab",
+    category: "Server / Networking",
+    date: "23 Oktober 2026",
+    image: "images/projects/web_server_load_balancing_lab.webp",
+    description: "Membangun dan menguji web server load balancing dengan dua backend server serta membandingkan distribusi request melalui Round Robin, Least Connections, dan IP Hash menggunakan curl.",
+    link: "blog/web-server-load-balancing.html",
+    tags: ["Load Balancing", "Networking", "Server", "curl"]
+  },
+  {
+    id: "dual-isp-failover-mikrotik",
+    num: "10",
+    title: "Dual ISP Failover with MikroTik CHR",
+    category: "Networking / Infrastructure",
+    date: "29 Oktober 2026",
+    image: "images/projects/dual_isp_failover_homelab_workspace.webp",
+    description: "Membangun simulasi Dual ISP menggunakan MikroTik CHR di VirtualBox serta menguji automatic failover dan recovery ketika salah satu jalur internet mengalami gangguan.",
+    link: "blog/dual-isp-failover-mikrotik.html",
+    tags: ["MikroTik", "ISP", "Failover", "VirtualBox", "DHCP", "NAT"]
+  },
+  {
+    id: "virtual-dual-isp-ubuntu",
+    num: "11",
+    title: "Virtual Dual ISP Lab with Ubuntu Router",
+    category: "Networking / Linux",
+    date: "30 Oktober 2026",
+    image: "images/projects/virtual_dual_isp_homelab_workspace.webp",
+    description: "Membangun dua Ubuntu Server sebagai router ISP virtual menggunakan Netplan, IP forwarding, dan iptables NAT masquerade untuk menyediakan dua jalur WAN menuju MikroTik CHR.",
+    link: "blog/virtual-dual-isp-ubuntu.html",
+    tags: ["Ubuntu", "Netplan", "IP forwarding", "iptables", "NAT", "MikroTik"]
+  },
+  {
+    id: "weighted-pcc-load-balancing",
+    num: "12",
+    title: "Weighted PCC Load Balancing 70:30",
+    category: "Networking / MikroTik",
+    date: "31 Oktober 2026",
+    image: "images/projects/cinematic_mikrotik_pcc_load_balancing_workstation.webp",
+    description: "Mengembangkan load balancing berbasis PCC dengan distribusi trafik 70:30 menggunakan 10 bucket, Firewall Mangle, connection marking, dan routing table.",
+    link: "blog/weighted-pcc-load-balancing.html",
+    tags: ["MikroTik", "PCC", "Load Balancing", "Firewall Mangle", "70:30"]
+  },
+  {
+    id: "isp-quality-monitoring",
+    num: "13",
+    title: "ISP Quality Monitoring & Network Impairment Simulation",
+    category: "Network Monitoring / Networking",
+    date: "2 November 2026",
+    image: "images/projects/isp_quality_monitoring_lab.webp",
+    description: "Melakukan monitoring kualitas dua jalur ISP serta mensimulasikan latency dan packet loss menggunakan Linux tc netem untuk mengevaluasi perubahan kualitas koneksi.",
+    link: "blog/isp-quality-monitoring.html",
+    tags: ["MikroTik", "Netwatch", "tc netem", "latency", "jitter", "packet loss"]
+  },
+  {
+    id: "adaptive-dual-wan-failover",
+    num: "14",
+    title: "Adaptive Dual-WAN Load Balancing & Failover on MikroTik CHR",
+    category: "Networking / Network Infrastructure",
+    date: "11 November 2026",
+    image: "images/projects/adaptive_dual_wan_lab_workspace.webp",
+    description: "Mengembangkan sistem Dual-WAN adaptif menggunakan PCC, Netwatch, RouterOS Scheduler, dan hysteresis untuk mengubah distribusi trafik 70:30 menjadi 100:0 atau 0:100 berdasarkan kondisi masing-masing ISP serta melakukan recovery otomatis ketika koneksi kembali stabil. Hands‑on lab pada lingkungan VirtualBox.",
+    link: "blog/adaptive-dual-wan-failover.html",
+    tags: ["MikroTik", "PCC", "Netwatch", "RouterOS Scheduler", "hysteresis", "failover"]
+  },
+  {
+    id: "devops-learning-server-infrastructure",
+    num: "15",
+    title: "DevOps Learning Server Infrastructure",
+    category: "Server / Infrastructure / DevOps",
+    date: "20 November 2026",
+    image: "images/projects/warm_homelab_proxmox_workstation.webp",
+    description: "Mengembangkan lingkungan server virtual untuk pembelajaran DevOps menggunakan Proxmox VE, MikroTik CHR, Ubuntu dan Debian VM untuk Ansible, Docker/Kubernetes, storage, SSH, routing, Tailscale, firewall, dan remote access. Lingkungan hands‑on lab, bukan production Kubernetes.",
+    link: "blog/devops-learning-server-infrastructure.html",
+    tags: ["Proxmox VE", "MikroTik", "Ubuntu", "Debian", "Ansible", "Docker", "Kubernetes", "SSH", "Tailscale", "firewall"]
   }
 ];
 

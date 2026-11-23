@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weighted PCC Load Balancing 70:30 — Ari Teguh</title>
+  <meta name="description" content="Mengembangkan load balancing berbasis PCC dengan distribusi trafik 70:30 menggunakan 10 bucket, Firewall Mangle, connection marking, dan routing table.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=20261015-ios1">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Jakarta — Indonesia</span></div>
+      <nav class="navbar" aria-label="Navigasi utama">
+        <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+          <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileNav">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobileNav" aria-hidden="true">
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main>
+    <article class="article-wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 12 — Weighted PCC</nav>
+      <span class="article-cat">Networking / MikroTik</span>
+      <h1>Weighted PCC Load Balancing 70:30</h1>
+      <div class="article-date">31 Oktober 2026 • Project 12 / 15</div>
+      <figure class="article-cover"><div class="img-frame"><img src="../images/projects/cinematic_mikrotik_pcc_load_balancing_workstation.webp" alt="Weighted PCC Load Balancing 70:30" loading="eager" decoding="async"></div>
+        <figcaption class="photo-caption">Fig. 12 — PCC bucket distribusi 70:30 antara WAN1 dan WAN2.</figcaption>
+      </figure>
+      <div class="article-body">
+        <h2>Pendahuluan</h2>
+        <p>Pada lab failover sebelumnya, dua jalur ISP saya perlakukan seperti jalur utama dan cadangan: yang satu bekerja, yang lain menunggu. Pertanyaan yang muncul kemudian adalah apakah keduanya bisa dipakai bersamaan, dengan porsi yang berbeda. Dari situlah saya mulai mempelajari PCC, atau Per Connection Classifier, di MikroTik. Lab ini mengembangkan lingkungan Dual-WAN yang sudah ada menjadi load balancing dengan bobot 70:30, yaitu sekitar tujuh puluh persen koneksi baru melalui WAN1 dan tiga puluh persen melalui WAN2.</p>
+        <p>Alasan memilih rasio 70:30 adalah supaya saya punya contoh bobot yang tidak seimbang. Dengan 50:50, perilaku sistem mungkin terlihat seperti round robin biasa dan perbedaan bobotnya tidak terasa. Dengan 70:30, saya dipaksa memahami bagaimana bobot itu benar-benar diterapkan, bukan sekadar membagi dua sama rata.</p>
+        <p>Lab ini berdiri di atas lingkungan ISP virtual yang sudah saya bangun sebelumnya, dan menjadi dasar langsung bagi pengembangan adaptive PCC di lab berikutnya. Jika bobot distribusi bisa diatur secara statis, maka secara logis bobot itu juga bisa diubah secara dinamis mengikuti kondisi jalur. Pemahaman itulah yang ingin saya bangun di sini.</p>
+        <h2>Tujuan</h2>
+        <ul>
+          <li>Memahami PCC sebagai mekanisme klasifikasi koneksi, bukan sekadar pembagian bandwidth.</li>
+          <li>Menerapkan distribusi berbobot 70:30 menggunakan 10 bucket PCC: 7 bucket ke WAN1 dan 3 bucket ke WAN2.</li>
+          <li>Memahami rantai Firewall Mangle, connection mark, routing mark, dan routing table.</li>
+          <li>Memverifikasi bahwa koneksi baru terdistribusi mengikuti bobot yang dikonfigurasi.</li>
+        </ul>
+        <h2>Tools / Perangkat</h2>
+        <ul>
+          <li>MikroTik CHR dengan RouterOS.</li>
+          <li>Firewall Mangle sebagai tempat aturan klasifikasi dibuat.</li>
+          <li>PCC (Per Connection Classifier) dengan 10 bucket.</li>
+          <li>Connection mark dan routing mark.</li>
+          <li>Dua routing table untuk WAN1 dan WAN2.</li>
+          <li>Lingkungan Dual-WAN dengan ISP virtual dari lab sebelumnya.</li>
+        </ul>
+        <h2>Proses yang Dilakukan</h2>
+        <ol>
+          <li>Berangkat dari konfigurasi Dual-WAN yang sudah berjalan dengan dua jalur ISP virtual.</li>
+          <li>Membuat aturan Firewall Mangle yang mengklasifikasikan koneksi baru menggunakan PCC ke dalam 10 bucket.</li>
+          <li>Mengarahkan tujuh bucket ke connection mark untuk WAN1 dan tiga bucket ke connection mark untuk WAN2.</li>
+          <li>Menyiapkan routing mark dan routing table terpisah untuk masing-masing jalur.</li>
+          <li>Mengisi setiap routing table dengan rute yang menunjuk ke gateway jalurnya sendiri.</li>
+          <li>Menguji dengan banyak koneksi baru dan mengamati apakah distribusinya mendekati 70:30.</li>
+        </ol>
+        <p>Bagian yang paling mengubah cara pandang saya adalah memahami apa yang sebenarnya dilakukan PCC. PCC mengklasifikasikan koneksi berdasarkan identifier seperti alamat dan port, lalu memasukkan koneksi tersebut ke salah satu bucket. Koneksi yang sama akan selalu masuk ke bucket yang sama, sehingga jalurnya konsisten selama koneksi itu hidup. Jadi PCC tidak memotong bandwidth secara matematis untuk setiap paket; ia membagi koneksi, dan rasio 70:30 muncul sebagai hasil statistik dari banyak koneksi, bukan jaminan untuk setiap request tunggal.</p>
+        <p>Rantai penandaan juga perlu dipahami secara berurutan. Aturan mangle memberi connection mark pada koneksi, dan mark ini diingat oleh connection tracking. Routing mark kemudian menggunakan informasi itu untuk memilih routing table, dan routing table menentukan gateway yang dipakai. Tanpa rantai ini, router hanya akan mengikuti tabel routing utama dan semua trafik cenderung keluar melalui satu jalur yang sama, betapapun banyak jalur yang tersedia.</p>
+        <p>Pengujian saya lakukan dengan membuat banyak koneksi baru dan mencatat jalur yang dipakai masing-masing. Saya sengaja menguji dengan koneksi baru, karena koneksi yang sudah ada akan mempertahankan mark-nya sendiri. Dari kumpulan pengujian itu, distribusi koneksi baru terlihat mendekati bobot yang saya konfigurasi, dengan WAN1 mendapat porsi yang lebih besar.</p>
+        <h2>Kendala / Hal yang Diperhatikan</h2>
+        <p>Urutan aturan di Firewall Mangle ternyata sangat menentukan. Aturan yang terlalu umum atau berada di posisi yang salah dapat menangkap semua koneksi ke satu bucket, sehingga bobot 70:30 tidak pernah terjadi. Selain itu, connection mark dan routing mark adalah dua hal yang berbeda dan mudah tertukar; keduanya harus dipasang dengan benar agar koneksi benar-benar mengikuti routing table yang dimaksud. Saya perlu memeriksa hasil penandaan secara langsung, bukan hanya membaca aturan yang tertulis.</p>
+        <p>Hal lain yang penting adalah sifat koneksi yang sudah ada. Perubahan aturan PCC terutama memengaruhi koneksi baru, sementara koneksi lama tetap mengikuti mark yang sudah tersimpan di connection tracking. Karena itu pengujian harus dilakukan dengan koneksi baru agar hasilnya mencerminkan konfigurasi terkini. Rasio 70:30 juga tidak akan terlihat persis pada sampel kecil; ia baru mendekati bobot yang dimaksud ketika jumlah koneksi cukup banyak.</p>
+        <h2>Hasil dan Pemahaman</h2>
+        <p>Dari pengujian yang saya lakukan, koneksi baru terdistribusi ke dua jalur dengan porsi yang mendekati 70:30, dan setiap koneksi tetap konsisten menggunakan jalurnya sendiri. WAN1 menampung mayoritas koneksi sesuai tujuh bucket yang dialokasikan kepadanya, sementara WAN2 mendapat sisanya. Perilaku ini sesuai dengan tujuan awal lab.</p>
+        <p>Pemahaman utama yang saya dapat adalah bahwa load balancing berbobot pada lapisan jaringan merupakan kombinasi klasifikasi dan kebijakan routing. PCC menyediakan cara membagi koneksi secara konsisten, mangle dan mark menyediakan cara mengingat keputusan itu, dan routing table menyediakan cara mengeksekusinya. Ketiganya harus benar bersamaan; salah satu saja yang keliru membuat seluruh rantai tidak bekerja.</p>
+        <p>Lab ini juga memberi saya fondasi untuk berpikir lebih jauh. Karena bobot distribusi pada akhirnya hanyalah aturan mangle yang bisa diubah, maka masuk akal untuk membuat aturan itu berubah mengikuti kondisi jalur. Ide itulah yang kemudian saya kembangkan menjadi adaptive PCC, dengan monitoring sebagai pemicu perubahan bobotnya.</p>
+        <div class="callout">PCC membuat saya memahami bahwa pembagian koneksi bukan sekadar angka 70:30, tetapi hasil dari klasifikasi koneksi dan keputusan routing.</div>
+        <h2>Hal yang Dipelajari</h2>
+        <ul>
+          <li>PCC mengklasifikasikan koneksi ke dalam bucket, bukan membagi bandwidth per paket.</li>
+          <li>Rasio 70:30 dapat diwujudkan dengan 10 bucket: 7 ke WAN1 dan 3 ke WAN2.</li>
+          <li>Connection mark, routing mark, dan routing table membentuk rantai keputusan yang saling bergantung.</li>
+          <li>Urutan aturan mangle menentukan apakah klasifikasi berjalan sesuai rencana.</li>
+          <li>Perubahan konfigurasi terutama memengaruhi koneksi baru; koneksi lama mengikuti mark yang sudah ada.</li>
+          <li>Bobot distribusi adalah statistik atas banyak koneksi, bukan jaminan per koneksi tunggal.</li>
+        </ul>
+        <h2>Kesimpulan</h2>
+        <p>Lab ini mengubah dua jalur ISP saya dari sekadar utama-dan-cadangan menjadi dua jalur yang dipakai bersama dengan porsi yang sengaja saya atur. Prosesnya mengajarkan saya bahwa fitur seperti load balancing sebenarnya dibangun dari beberapa mekanisme kecil yang saling terhubung, dan memahami rantai itu lebih penting daripada sekadar menghafal konfigurasi.</p>
+        <p>Dengan bobot yang kini bisa saya kendalikan, langkah berikutnya tinggal membuat bobot itu merespons kondisi jaringan. Di situlah pembelajaran saya tentang monitoring kualitas jalur mulai terasa relevan.</p>
+      </div>
+      <div class="back-link">
+        <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+        <a class="text-link" href="../projects.html">Lihat semua project <span class="arrow">→</span></a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+        <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+        </nav>
+        <div><span class="small-label">Kontak</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="../js/posts.js?v=20261015-ios1"></script>
+  <script src="../js/script.js?v=20261015-ios1"></script>
+  <script src="../js/animations.js?v=20261015-ios1"></script>
+</body>
+</html>

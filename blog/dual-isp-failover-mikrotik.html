@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dual ISP Failover with MikroTik CHR — Ari Teguh</title>
+  <meta name="description" content="Membangun simulasi Dual ISP menggunakan MikroTik CHR di VirtualBox serta menguji automatic failover dan recovery ketika salah satu jalur internet mengalami gangguan.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=20261015-ios1">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="masthead-top"><span>Vol. 01 — Est. 2026</span><span>SOC • NOC • Networking</span><span>Jakarta — Indonesia</span></div>
+      <nav class="navbar" aria-label="Navigasi utama">
+        <a class="brand" href="../index.html"><span class="brand-mark">Personal Blog</span><span class="brand-sub">Ari Teguh</span></a>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" aria-label="Aktifkan dark mode"><span class="toggle-icon">☼</span></button>
+          <button class="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileNav">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav-overlay" id="mobileNav" aria-hidden="true">
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main>
+    <article class="article-wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <a href="../blog.html">Blog</a> / 10 — Dual ISP Failover</nav>
+      <span class="article-cat">Networking / Infrastructure</span>
+      <h1>Dual ISP Failover with MikroTik CHR</h1>
+      <div class="article-date">29 Oktober 2026 • Project 10 / 15</div>
+      <figure class="article-cover"><div class="img-frame"><img src="../images/projects/dual_isp_failover_homelab_workspace.webp" alt="Dual ISP Failover with MikroTik CHR" loading="eager" decoding="async"></div>
+        <figcaption class="photo-caption">Fig. 10 — Simulasi Dual ISP menggunakan MikroTik CHR di VirtualBox.</figcaption>
+      </figure>
+      <div class="article-body">
+        <h2>Pendahuluan</h2>
+        <p>Lab load balancing web sebelumnya membuat saya berpikir tentang sisi lain dari ketersediaan layanan: bagaimana jika yang bermasalah bukan servernya, melainkan jalur internetnya? Dari situ saya mulai mempelajari konsep Dual ISP, yaitu satu router yang memiliki dua jalur internet sekaligus. Lab ini saya bangun untuk memahami bagaimana router bisa berpindah jalur secara otomatis ketika salah satu jalur tidak tersedia.</p>
+        <p>Semua perangkat saya jalankan secara virtual di VirtualBox: MikroTik CHR sebagai router, satu Ubuntu Client di sisi LAN, dan dua jalur ISP virtual sebagai WAN1 dan WAN2. Dengan cara ini saya bisa menguji failover tanpa perlu berlangganan dua koneksi internet fisik. Bagi saya, ini kelanjutan yang wajar dari lab MikroTik dasar sebelumnya, karena DHCP, NAT, dan routing yang dulu saya pelajari untuk satu jalur sekarang diterapkan untuk dua jalur sekaligus.</p>
+        <p>Fokus lab ini masih pada pertanyaan paling dasar: jalur mana yang hidup, dan ke mana trafik harus pergi. Saya belum masuk ke pembagian beban atau penilaian kualitas jalur; bagian itu saya pelajari di lab-lab berikutnya. Di sini tujuannya adalah memastikan fondasi failover bekerja dengan benar.</p>
+        <h2>Tujuan</h2>
+        <ul>
+          <li>Memahami konsep Dual ISP: dua jalur internet yang dikelola oleh satu router.</li>
+          <li>Mengonfigurasi WAN1, WAN2, dan LAN lengkap dengan IP addressing, DHCP, NAT, dan routing.</li>
+          <li>Memahami gateway monitoring sebagai pendeteksi kondisi jalur.</li>
+          <li>Menguji failover otomatis ketika salah satu ISP diputus, dan recovery ketika jalur dipulihkan.</li>
+        </ul>
+        <h2>Tools / Perangkat</h2>
+        <ul>
+          <li>VirtualBox sebagai platform virtualisasi.</li>
+          <li>MikroTik CHR dengan RouterOS sebagai router utama.</li>
+          <li>Ubuntu Client di sisi LAN.</li>
+          <li>Dua jalur ISP virtual: WAN1 dan WAN2.</li>
+          <li>DHCP server, NAT, routing, dan gateway monitoring berbasis ping.</li>
+        </ul>
+        <h2>Proses yang Dilakukan</h2>
+        <ol>
+          <li>Menyiapkan topologi di VirtualBox: MikroTik CHR dengan antarmuka WAN1, WAN2, dan LAN, serta Ubuntu Client yang terhubung ke LAN.</li>
+          <li>Memberikan alamat IP pada setiap antarmuka sesuai perannya.</li>
+          <li>Mengaktifkan DHCP server di LAN agar klien mendapat alamat secara otomatis.</li>
+          <li>Mengonfigurasi NAT pada kedua jalur WAN agar klien bisa keluar melalui jalur mana pun.</li>
+          <li>Menyiapkan routing dengan dua gateway, dilengkapi gateway monitoring untuk memantau masing-masing jalur.</li>
+          <li>Menguji bertahap: kedua WAN aktif, salah satu ISP diputus, trafik diamati, ISP dipulihkan, lalu routing diperiksa kembali.</li>
+        </ol>
+        <p>Bagian konfigurasi yang paling penting bagi saya adalah hubungan antara routing dan gateway monitoring. Setiap jalur WAN dipantau dengan ping ke gateway-nya. Ketika sebuah gateway tidak lagi merespons, jalur tersebut dianggap tidak tersedia, dan keputusan routing diarahkan ke jalur yang masih sehat. Jadi failover di sini bukan fitur ajaib, melainkan konsekuensi dari routing yang mengikuti hasil monitoring.</p>
+        <p>Pengujian saya lakukan dengan memutus salah satu jalur ISP virtual, lalu memeriksa apakah klien masih bisa mengakses internet melalui jalur yang tersisa. Setelah itu jalur yang diputus saya pulihkan, dan saya periksa apakah routing kembali menggunakan kedua jalur seperti semula. Urutan pengujian ini sengaja saya buat lengkap, karena failover yang berhasil belum tentu diikuti recovery yang benar.</p>
+        <h2>Kendala / Hal yang Diperhatikan</h2>
+        <p>Hal pertama yang perlu diperhatikan adalah keterpisahan kedua jalur di dalam VirtualBox. Setiap WAN harus terhubung ke jaringan yang benar-benar terpisah, supaya ketika satu jalur diputus, jalur lainnya tidak ikut terpengaruh. Jika pengaturan adapter jaringan keliru, pengujian failover bisa terlihat berhasil atau gagal karena alasan yang salah. Selain itu, NAT harus dikonfigurasi pada kedua jalur WAN. Jika NAT hanya ada di WAN1, trafik mungkin sudah berpindah jalur secara routing, tetapi klien tetap tidak bisa keluar karena alamat sumbernya tidak di-translasi di jalur yang baru.</p>
+        <p>Hal kedua adalah batas kemampuan gateway monitoring. Monitoring berbasis ping ke gateway hanya memberi tahu apakah gateway tersebut dapat dijangkau, bukan apakah seluruh koneksi internet di belakangnya sehat. Jalur bisa saja dianggap hidup padahal kualitasnya buruk. Keterbatasan ini saya catat sebagai catatan penting, dan nantinya menjadi salah satu alasan saya mempelajari monitoring kualitas jalur di lab terpisah.</p>
+        <h2>Hasil dan Pemahaman</h2>
+        <p>Pada kondisi normal dengan kedua WAN aktif, klien mendapatkan koneksi internet seperti biasa. Ketika salah satu ISP saya putus, gateway monitoring mendeteksi kegagalan tersebut dan trafik klien berpindah ke jalur yang masih tersedia. Pengujian ini menunjukkan failover otomatis bekerja tanpa intervensi manual, sesuai tujuan awal lab.</p>
+        <p>Ketika ISP yang diputus dipulihkan, routing kembali diperiksa dan kedua jalur dapat digunakan lagi seperti konfigurasi awal. Recovery ini sama pentingnya dengan failover itu sendiri, karena sistem yang hanya bisa berpindah satu arah akan menyisakan satu jalur menganggur setelah gangguan selesai.</p>
+        <p>Dari lab ini saya memahami bahwa failover pada dasarnya adalah keputusan routing yang digerakkan oleh monitoring. Konfigurasinya tidak rumit jika fondasi addressing, DHCP, NAT, dan routing sudah benar, tetapi setiap bagian harus diverifikasi satu per satu. Lab ini menjadi dasar yang saya pakai sebelum masuk ke load balancing PCC dan adaptive failover, karena di sanalah dua jalur ini mulai digunakan secara lebih cerdas.</p>
+        <div class="callout">Failover menjadi lebih mudah dipahami ketika saya melihat sendiri bagaimana jalur utama berhenti digunakan dan koneksi berpindah ke jalur cadangan.</div>
+        <h2>Hal yang Dipelajari</h2>
+        <ul>
+          <li>Dual ISP memungkinkan satu router mengelola dua jalur internet sekaligus.</li>
+          <li>Failover otomatis bergantung pada gateway monitoring yang menggerakkan keputusan routing.</li>
+          <li>NAT harus tersedia di kedua jalur agar perpindahan jalur benar-benar berfungsi bagi klien.</li>
+          <li>Recovery perlu diuji terpisah dari failover; keduanya adalah perilaku yang berbeda.</li>
+          <li>Monitoring berbasis ping ke gateway memiliki batas: ia mendeteksi keterjangkauan, bukan kualitas koneksi.</li>
+        </ul>
+        <h2>Kesimpulan</h2>
+        <p>Lab ini memberi saya fondasi yang jelas tentang bagaimana dua jalur internet dikelola dalam satu router. Saya mempelajari konfigurasi lengkapnya, menguji skenario gangguan dan pemulihan, dan melihat sendiri bagaimana routing mengikuti hasil monitoring. Semuanya masih dalam skala lab virtual, tetapi konsepnya terasa nyata karena setiap perilaku bisa saya picu dan amati.</p>
+        <p>Yang paling saya hargai dari lab ini adalah posisinya sebagai batu loncatan. Setelah memahami jalur yang hidup dan mati, pertanyaan berikutnya menjadi mungkin: bagaimana jika kedua jalur dipakai bersamaan, dan bagaimana jika keputusan pindah jalur mempertimbangkan kualitas, bukan hanya keterjangkauan?</p>
+      </div>
+      <div class="back-link">
+        <a class="text-link" href="../blog.html"><span class="arrow">←</span> Back to Blog</a>
+        <a class="text-link" href="../projects.html">Lihat semua project <span class="arrow">→</span></a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand">Personal Blog</div><p style="margin-top:10px;max-width:38ch">Dokumentasi perjalanan belajar Ari Teguh — Cyber Security, Networking, Server, dan Linux.</p></div>
+        <nav aria-label="Footer navigasi"><span class="small-label">Navigasi</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="../index.html">Home</a></li><li><a href="../blog.html">Blog</a></li><li><a href="../projects.html">Projects</a></li><li><a href="../about.html">About</a></li><li><a href="../contact.html">Contact</a></li></ul>
+        </nav>
+        <div><span class="small-label">Kontak</span>
+          <ul class="footer-links" style="margin-top:12px"><li><a href="mailto:ariteguh2005@gmail.com">Email</a></li><li><a href="https://github.com/AriTeguh080" target="_blank" rel="noopener">GitHub</a></li><li><a href="https://www.linkedin.com/in/pt-ari-teguh-prasetya-5b14a628b/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a></li><li><a href="https://www.instagram.com/ariteguhh/" target="_blank" rel="noopener noreferrer">Instagram</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Ari Teguh.</span><span>SOC • NOC • Networking</span></div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="../js/posts.js?v=20261015-ios1"></script>
+  <script src="../js/script.js?v=20261015-ios1"></script>
+  <script src="../js/animations.js?v=20261015-ios1"></script>
+</body>
+</html>
